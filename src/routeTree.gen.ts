@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as FormationsIdRouteImport } from './routes/formations.$id'
 import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
+import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
 import { Route as AdminFormationsRouteImport } from './routes/admin.formations'
 import { Route as AdminFormateursRouteImport } from './routes/admin.formateurs'
 
@@ -66,6 +67,11 @@ const AdminSessionsRoute = AdminSessionsRouteImport.update({
   path: '/sessions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminParticipantsRoute = AdminParticipantsRouteImport.update({
+  id: '/participants',
+  path: '/participants',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFormationsRoute = AdminFormationsRouteImport.update({
   id: '/formations',
   path: '/formations',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/formateurs': typeof FormateursRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/formateurs': typeof FormateursRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin': typeof AdminIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/formateurs': typeof FormateursRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/formateurs'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/participants'
     | '/admin/sessions'
     | '/formations/$id'
     | '/admin/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/formateurs'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/participants'
     | '/admin/sessions'
     | '/formations/$id'
     | '/admin'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/formateurs'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/participants'
     | '/admin/sessions'
     | '/formations/$id'
     | '/admin/'
@@ -232,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSessionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/participants': {
+      id: '/admin/participants'
+      path: '/participants'
+      fullPath: '/admin/participants'
+      preLoaderRoute: typeof AdminParticipantsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/formations': {
       id: '/admin/formations'
       path: '/formations'
@@ -252,6 +271,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminFormateursRoute: typeof AdminFormateursRoute
   AdminFormationsRoute: typeof AdminFormationsRoute
+  AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminSessionsRoute: typeof AdminSessionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -259,6 +279,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminFormateursRoute: AdminFormateursRoute,
   AdminFormationsRoute: AdminFormationsRoute,
+  AdminParticipantsRoute: AdminParticipantsRoute,
   AdminSessionsRoute: AdminSessionsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
