@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FormationsIdRouteImport } from './routes/formations.$id'
 
 const CatalogueRoute = CatalogueRouteImport.update({
   id: '/catalogue',
@@ -22,31 +23,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormationsIdRoute = FormationsIdRouteImport.update({
+  id: '/formations/$id',
+  path: '/formations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalogue'
+  fullPaths: '/' | '/catalogue' | '/formations/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalogue'
-  id: '__root__' | '/' | '/catalogue'
+  to: '/' | '/catalogue' | '/formations/$id'
+  id: '__root__' | '/' | '/catalogue' | '/formations/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CatalogueRoute: typeof CatalogueRoute
+  FormationsIdRoute: typeof FormationsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/formations/$id': {
+      id: '/formations/$id'
+      path: '/formations/$id'
+      fullPath: '/formations/$id'
+      preLoaderRoute: typeof FormationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CatalogueRoute: CatalogueRoute,
+  FormationsIdRoute: FormationsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
