@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FormateursRouteImport } from './routes/formateurs'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormationsIdRouteImport } from './routes/formations.$id'
 
@@ -22,6 +23,11 @@ const FormateursRoute = FormateursRouteImport.update({
 const CatalogueRoute = CatalogueRouteImport.update({
   id: '/catalogue',
   path: '/catalogue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,12 +43,14 @@ const FormationsIdRoute = FormationsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
@@ -50,20 +58,33 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalogue' | '/formateurs' | '/formations/$id'
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/formateurs'
+    | '/formations/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalogue' | '/formateurs' | '/formations/$id'
-  id: '__root__' | '/' | '/catalogue' | '/formateurs' | '/formations/$id'
+  to: '/' | '/a-propos' | '/catalogue' | '/formateurs' | '/formations/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/formateurs'
+    | '/formations/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
   CatalogueRoute: typeof CatalogueRoute
   FormateursRoute: typeof FormateursRoute
   FormationsIdRoute: typeof FormationsIdRoute
@@ -85,6 +106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +132,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
   CatalogueRoute: CatalogueRoute,
   FormateursRoute: FormateursRoute,
   FormationsIdRoute: FormationsIdRoute,
