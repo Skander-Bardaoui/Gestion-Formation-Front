@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as FormateursRouteImport } from './routes/formateurs'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormationsIdRouteImport } from './routes/formations.$id'
 
+const FormateursRoute = FormateursRouteImport.update({
+  id: '/formateurs',
+  path: '/formateurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CatalogueRoute = CatalogueRouteImport.update({
   id: '/catalogue',
   path: '/catalogue',
@@ -32,35 +38,46 @@ const FormationsIdRoute = FormationsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/catalogue': typeof CatalogueRoute
+  '/formateurs': typeof FormateursRoute
   '/formations/$id': typeof FormationsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalogue' | '/formations/$id'
+  fullPaths: '/' | '/catalogue' | '/formateurs' | '/formations/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalogue' | '/formations/$id'
-  id: '__root__' | '/' | '/catalogue' | '/formations/$id'
+  to: '/' | '/catalogue' | '/formateurs' | '/formations/$id'
+  id: '__root__' | '/' | '/catalogue' | '/formateurs' | '/formations/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CatalogueRoute: typeof CatalogueRoute
+  FormateursRoute: typeof FormateursRoute
   FormationsIdRoute: typeof FormationsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/formateurs': {
+      id: '/formateurs'
+      path: '/formateurs'
+      fullPath: '/formateurs'
+      preLoaderRoute: typeof FormateursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/catalogue': {
       id: '/catalogue'
       path: '/catalogue'
@@ -88,8 +105,19 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CatalogueRoute: CatalogueRoute,
+  FormateursRoute: FormateursRoute,
   FormationsIdRoute: FormationsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
