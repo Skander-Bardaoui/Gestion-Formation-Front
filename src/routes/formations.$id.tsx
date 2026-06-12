@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Check, Clock, MapPin, Users, Award, FileText } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { formations } from "@/lib/data";
+import { formations, type Formation } from "@/lib/data";
 
 export const Route = createFileRoute("/formations/$id")({
   loader: ({ params }) => {
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/formations/$id")({
 });
 
 function FormationPage() {
-  const { formation: f } = Route.useLoaderData();
+  const { formation: f } = Route.useLoaderData() as { formation: Formation };
   return (
     <PageShell>
       <article className="mx-auto max-w-5xl px-6 py-12">
