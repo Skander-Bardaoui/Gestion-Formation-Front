@@ -9,38 +9,225 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as FormateursRouteImport } from './routes/formateurs'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CatalogueRouteImport } from './routes/catalogue'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as FormationsIdRouteImport } from './routes/formations.$id'
+import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
+import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
+import { Route as AdminFormationsRouteImport } from './routes/admin.formations'
+import { Route as AdminFormateursRouteImport } from './routes/admin.formateurs'
+import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 
+const FormateursRoute = FormateursRouteImport.update({
+  id: '/formateurs',
+  path: '/formateurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogueRoute = CatalogueRouteImport.update({
+  id: '/catalogue',
+  path: '/catalogue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const FormationsIdRoute = FormationsIdRouteImport.update({
+  id: '/formations/$id',
+  path: '/formations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSessionsRoute = AdminSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminParticipantsRoute = AdminParticipantsRouteImport.update({
+  id: '/participants',
+  path: '/participants',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFormationsRoute = AdminFormationsRouteImport.update({
+  id: '/formations',
+  path: '/formations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFormateursRoute = AdminFormateursRouteImport.update({
+  id: '/formateurs',
+  path: '/formateurs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
+  '/formateurs': typeof FormateursRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/formateurs': typeof AdminFormateursRoute
+  '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/formations/$id': typeof FormationsIdRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
+  '/formateurs': typeof FormateursRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/formateurs': typeof AdminFormateursRoute
+  '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/formations/$id': typeof FormationsIdRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
+  '/formateurs': typeof FormateursRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/formateurs': typeof AdminFormateursRoute
+  '/admin/formations': typeof AdminFormationsRoute
+  '/admin/participants': typeof AdminParticipantsRoute
+  '/admin/sessions': typeof AdminSessionsRoute
+  '/formations/$id': typeof FormationsIdRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/admin'
+    | '/catalogue'
+    | '/contact'
+    | '/formateurs'
+    | '/admin/documents'
+    | '/admin/formateurs'
+    | '/admin/formations'
+    | '/admin/participants'
+    | '/admin/sessions'
+    | '/formations/$id'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/formateurs'
+    | '/admin/documents'
+    | '/admin/formateurs'
+    | '/admin/formations'
+    | '/admin/participants'
+    | '/admin/sessions'
+    | '/formations/$id'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/a-propos'
+    | '/admin'
+    | '/catalogue'
+    | '/contact'
+    | '/formateurs'
+    | '/admin/documents'
+    | '/admin/formateurs'
+    | '/admin/formations'
+    | '/admin/participants'
+    | '/admin/sessions'
+    | '/formations/$id'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  CatalogueRoute: typeof CatalogueRoute
+  ContactRoute: typeof ContactRoute
+  FormateursRoute: typeof FormateursRoute
+  FormationsIdRoute: typeof FormationsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/formateurs': {
+      id: '/formateurs'
+      path: '/formateurs'
+      fullPath: '/formateurs'
+      preLoaderRoute: typeof FormateursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogue': {
+      id: '/catalogue'
+      path: '/catalogue'
+      fullPath: '/catalogue'
+      preLoaderRoute: typeof CatalogueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +235,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/formations/$id': {
+      id: '/formations/$id'
+      path: '/formations/$id'
+      fullPath: '/formations/$id'
+      preLoaderRoute: typeof FormationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/sessions': {
+      id: '/admin/sessions'
+      path: '/sessions'
+      fullPath: '/admin/sessions'
+      preLoaderRoute: typeof AdminSessionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/participants': {
+      id: '/admin/participants'
+      path: '/participants'
+      fullPath: '/admin/participants'
+      preLoaderRoute: typeof AdminParticipantsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/formations': {
+      id: '/admin/formations'
+      path: '/formations'
+      fullPath: '/admin/formations'
+      preLoaderRoute: typeof AdminFormationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/formateurs': {
+      id: '/admin/formateurs'
+      path: '/formateurs'
+      fullPath: '/admin/formateurs'
+      preLoaderRoute: typeof AdminFormateursRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/documents': {
+      id: '/admin/documents'
+      path: '/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AdminDocumentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminFormateursRoute: typeof AdminFormateursRoute
+  AdminFormationsRoute: typeof AdminFormationsRoute
+  AdminParticipantsRoute: typeof AdminParticipantsRoute
+  AdminSessionsRoute: typeof AdminSessionsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminFormateursRoute: AdminFormateursRoute,
+  AdminFormationsRoute: AdminFormationsRoute,
+  AdminParticipantsRoute: AdminParticipantsRoute,
+  AdminSessionsRoute: AdminSessionsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
+  AdminRoute: AdminRouteWithChildren,
+  CatalogueRoute: CatalogueRoute,
+  ContactRoute: ContactRoute,
+  FormateursRoute: FormateursRoute,
+  FormationsIdRoute: FormationsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
