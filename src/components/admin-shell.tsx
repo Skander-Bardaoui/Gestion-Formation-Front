@@ -106,7 +106,11 @@ export function AdminShell({ title, subtitle, actions, children }: { title: stri
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
               <div className="min-w-0">
                 <h1 className="font-display text-4xl tracking-tight md:text-5xl">{title}</h1>
-                {subtitle && <p className="mt-1 text-muted-foreground">{subtitle}</p>}
+                {subtitle && (
+                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground/80">
+                    {subtitle}
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">{actions}</div>
             </div>

@@ -33,7 +33,7 @@ function AdminDashboard() {
   return (
     <AdminShell
       title="Bonjour Sarah."
-      subtitle="Voici l'activité de votre plateforme aujourd'hui."
+      subtitle="Bienvenue sur votre tableau de bord. Retrouvez en un coup d'œil l'activité de votre plateforme."
       actions={
         <>
           <button className="rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-secondary">Exporter</button>

@@ -97,7 +97,7 @@ function AdminParticipants() {
   return (
     <AdminShell
       title="Participants"
-      subtitle="Utilisateurs inscrits sur la plateforme (sans identifiant)."
+      subtitle="Consultez la liste des participants inscrits et suivez leur progression dans les formations."
       actions={
         <>
           <Button variant="outline" size="sm"><Download className="h-4 w-4" /> Exporter</Button>

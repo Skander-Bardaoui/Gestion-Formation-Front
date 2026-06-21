@@ -5,6 +5,16 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { PageShell } from "@/components/page-shell";
 import { getFormateurs, type Formateur } from "@/lib/api/formateurs";
 
+function StarRating({ value }: { value: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star key={s} className={`h-4 w-4 ${s <= Math.round(value) ? "fill-ochre text-ochre" : "text-muted-foreground/20"}`} />
+      ))}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/formateurs")({
   head: () => ({
     meta: [
@@ -50,7 +60,10 @@ function TrainersPage() {
                   </div>
                 </div>
                 <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
-                  <span className="flex items-center gap-1 text-ochre-foreground"><Star className="h-4 w-4 fill-ochre text-ochre" /> {t.noteGlobale ?? "—"}</span>
+                  <div className="flex items-center gap-2">
+                    <StarRating value={t.noteGlobale} />
+                    <span className="text-xs text-muted-foreground">({t.noteGlobale ?? "—"})</span>
+                  </div>
                   <span className="text-muted-foreground">{t.sessionsAsFormateur?.length || 0} sessions</span>
                   <span className="text-muted-foreground">{t.email}</span>
                 </div>

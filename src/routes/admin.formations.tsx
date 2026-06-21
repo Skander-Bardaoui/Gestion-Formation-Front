@@ -151,7 +151,7 @@ function AdminFormations() {
   return (
     <AdminShell
       title="Formations"
-      subtitle="Gérez votre catalogue : intra, inter et formations à la carte."
+      subtitle="Créez et organisez votre catalogue de formations. Définissez les programmes, les objectifs et les prerequis pour chaque formation."
       actions={
         <>
           <Button variant="outline" size="sm"><Filter className="h-4 w-4" /> Filtres</Button>

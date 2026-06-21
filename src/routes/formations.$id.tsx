@@ -36,8 +36,7 @@ function FormationPage() {
       queryClient.invalidateQueries({ queryKey: ["formation", id] });
     },
     onError: (err: any) => {
-      try { const msg = JSON.parse(err.message); toast.error(msg.message || "Erreur lors de l'inscription"); }
-      catch { toast.error("Erreur lors de l'inscription"); }
+      toast.error(err.message || "Erreur lors de l'inscription");
     },
   });
 

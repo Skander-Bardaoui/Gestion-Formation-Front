@@ -40,7 +40,7 @@ function AdminApprobations() {
   return (
     <AdminShell
       title="Approbations"
-      subtitle="Validez ou rejetez les nouvelles inscriptions."
+      subtitle="Examinez les demandes d'inscription et approuvez ou rejetez les nouveaux participants."
     >
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>

@@ -155,7 +155,7 @@ function AdminSessions() {
   return (
     <AdminShell
       title="Sessions"
-      subtitle="Planifiez, convoquez, suivez les présences."
+      subtitle="Planifiez les sessions, assignez les formateurs et les participants, et suivez le deroulement de chaque formation."
       actions={
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>

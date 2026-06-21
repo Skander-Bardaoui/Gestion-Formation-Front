@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Star, Loader2, Mail, Pencil, Trash2 } from "lucide-react";
+
+function StarRating({ value }: { value: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star key={s} className={`h-3 w-3 ${s <= Math.round(value) ? "fill-ochre text-ochre" : "text-muted-foreground/20"}`} />
+      ))}
+    </div>
+  );
+}
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -96,7 +106,7 @@ function AdminFormateurs() {
   return (
     <AdminShell
       title="Formateurs"
-      subtitle="Base de données des intervenants, qualifications et disponibilités."
+      subtitle="Gerer vos intervenants : consultez leurs profils, specialites, disponibilites et consultez leurs evaluations."
       actions={
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
@@ -142,9 +152,9 @@ function AdminFormateurs() {
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-display text-lg">{t.prenom} {t.nom}</h3>
                   <p className="truncate text-xs text-muted-foreground">{t.specialites || "—"}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1 text-ochre-foreground"><Star className="h-3 w-3 fill-ochre text-ochre" /> {t.noteGlobale || "—"}</span>
-                    <span className="text-muted-foreground">{'formateur'}</span>
+                  <div className="mt-2 flex items-center gap-2">
+                    <StarRating value={t.noteGlobale} />
+                    <span className="text-xs text-muted-foreground">({t.noteGlobale || "—"})</span>
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">

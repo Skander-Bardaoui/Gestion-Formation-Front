@@ -61,7 +61,7 @@ function AdminParametres() {
   const roleLabel = user?.role === "admin" ? "Administrateur" : user?.role === "formateur" ? "Formateur" : "Participant";
 
   return (
-    <AdminShell title="Paramètres" subtitle="Modifiez vos informations personnelles et votre mot de passe.">
+    <AdminShell title="Paramètres" subtitle="Mettez a jour vos informations personnelles et votre mot de passe en toute simplicite.">
       <div className="grid gap-8 md:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-6">
           <div className="flex items-center gap-2">

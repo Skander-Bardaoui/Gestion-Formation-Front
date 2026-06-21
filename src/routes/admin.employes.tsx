@@ -97,7 +97,7 @@ function AdminEmployes() {
   return (
     <AdminShell
       title="Employés"
-      subtitle="Gestion des employés avec identifiant unique (Année + STG + Incrément)."
+      subtitle="Enregistrez les employes et gerez leurs identifiants uniques. Suivez leur participation aux formations."
       actions={
         <>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>

@@ -19,7 +19,7 @@ function AdminDocuments() {
   return (
     <AdminShell
       title="Documents"
-      subtitle="Certificats, conventions, factures, supports — tout au même endroit."
+      subtitle="Centralisez tous les documents : certificats, conventions, factures et supports de formation."
     >
       <div className="grid gap-4 md:grid-cols-3">
         <Tile icon={Award} label="Certificats émis" value="412" />

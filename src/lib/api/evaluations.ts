@@ -30,8 +30,12 @@ export type CreateEvaluationDto = {
   participantId: string;
 };
 
-export async function getEvaluations(): Promise<Evaluation[]> {
-  return api.get<Evaluation[]>('/evaluations');
+export async function getEvaluations(filters?: { formationId?: string; formateurId?: string }): Promise<Evaluation[]> {
+  const params = new URLSearchParams();
+  if (filters?.formationId) params.set('formationId', filters.formationId);
+  if (filters?.formateurId) params.set('formateurId', filters.formateurId);
+  const qs = params.toString();
+  return api.get<Evaluation[]>(`/evaluations${qs ? `?${qs}` : ''}`);
 }
 
 export async function getEvaluation(id: string): Promise<Evaluation> {
