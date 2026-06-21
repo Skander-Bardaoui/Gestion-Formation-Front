@@ -1,15 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Calendar, GraduationCap, QrCode, ShieldCheck, Users } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, BookOpen, Calendar, GraduationCap, QrCode, ShieldCheck, Users, Lock, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/page-shell";
-import { formations } from "@/lib/data";
+import { useAuth } from "@/contexts/auth-context";
+import { getFormations } from "@/lib/api/formations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FormaPro — Gestion intelligente de vos formations" },
+      { title: "StirForma — Gestion intelligente de vos formations" },
       { name: "description", content: "Pilotez intra, inter et catalogue depuis une seule plateforme : sessions, formateurs, certificats, signatures." },
-      { property: "og:title", content: "FormaPro — Plateforme de gestion des formations" },
+      { property: "og:title", content: "StirForma — Plateforme de gestion des formations" },
       { property: "og:description", content: "La plateforme française pour gérer toutes vos formations professionnelles." },
     ],
   }),
@@ -17,7 +18,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const featured = formations.slice(0, 3);
+  const { isAuthenticated, user } = useAuth();
+  const { data: formations, isLoading } = useQuery({ queryKey: ["formations"], queryFn: getFormations });
+  const featured = formations?.slice(0, 3) || [];
+
   return (
     <PageShell>
       {/* Hero */}
@@ -32,25 +36,54 @@ function Index() {
               Toute votre <em className="text-primary">ingénierie de formation</em>, dans une seule plateforme.
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              FormaPro centralise vos sessions intra, inter et catalogue : planification, convocations, présences, certificats signés et QR-code de vérification.
+              StirForma centralise vos sessions intra, inter et catalogue : planification, convocations, présences, certificats signés et QR-code de vérification.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                to="/catalogue"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Découvrir le catalogue <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/admin"
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-              >
-                Voir le back-office
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/catalogue"
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    Découvrir le catalogue <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  {user?.role === "admin" && (
+                    <Link
+                      to="/admin"
+                      className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                    >
+                      Administration
+                    </Link>
+                  )}
+                  {user?.role === "formateur" && (
+                    <Link
+                      to="/formateur/dashboard"
+                      className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                    >
+                      Mes sessions
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/connexion"
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    Accéder à la plateforme <Lock className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    Demander une démo
+                  </Link>
+                </>
+              )}
             </div>
             <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6">
               {[
-                { k: "240+", v: "Formations actives" },
+                { k: `${formations?.length || 240}+`, v: "Formations actives" },
                 { k: "92", v: "Formateurs certifiés" },
                 { k: "98%", v: "Taux de satisfaction" },
               ].map((s) => (
@@ -105,7 +138,7 @@ function Index() {
                 <em className="text-primary">cinq métiers</em> couverts.
               </h2>
               <p className="mt-4 text-muted-foreground">
-                De l'organisation pédagogique à la conformité documentaire, FormaPro accompagne chaque étape du cycle de formation.
+                De l'organisation pédagogique à la conformité documentaire, StirForma accompagne chaque étape du cycle de formation.
               </p>
             </div>
             <div className="grid gap-6 md:col-span-8 md:grid-cols-2">
@@ -128,31 +161,38 @@ function Index() {
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Catalogue</p>
             <h2 className="mt-1 font-display text-4xl md:text-5xl">Formations à l'affiche</h2>
           </div>
-          <Link to="/catalogue" className="hidden text-sm text-primary hover:underline md:inline-flex">
-            Voir tout →
-          </Link>
-        </div>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {featured.map((f) => (
-            <Link
-              key={f.id}
-              to="/formations/$id"
-              params={{ id: f.id }}
-              className="group flex flex-col rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl"
-            >
-              <div className="flex items-center justify-between text-xs">
-                <span className="rounded-md bg-secondary px-2 py-1 font-medium text-secondary-foreground">{f.category}</span>
-                <span className="text-muted-foreground">{f.type}</span>
-              </div>
-              <h3 className="mt-4 font-display text-2xl leading-tight">{f.title}</h3>
-              <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{f.description}</p>
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm">
-                <span className="text-muted-foreground">{f.duration} · {f.location.split(" · ")[0]}</span>
-                <span className="font-display text-xl text-primary">{f.price} €</span>
-              </div>
+          {isAuthenticated && (
+            <Link to="/catalogue" className="hidden text-sm text-primary hover:underline md:inline-flex">
+              Voir tout →
             </Link>
-          ))}
+          )}
         </div>
+        {isLoading ? (
+          <div className="mt-10 flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        ) : (
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {featured.map((f) => {
+              const Wrapper = isAuthenticated ? Link : 'div';
+              const wrapperProps = isAuthenticated
+                ? { to: "/formations/$id" as const, params: { id: f.id }, className: "group flex flex-col rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl" }
+                : { className: "flex flex-col rounded-xl border border-border bg-card p-6 opacity-80" };
+              return (
+                <Wrapper key={f.id} {...(wrapperProps as any)}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="rounded-md bg-secondary px-2 py-1 font-medium text-secondary-foreground">{f.categorie || "Général"}</span>
+                    <span className="text-muted-foreground">{f.type}</span>
+                  </div>
+                  <h3 className="mt-4 font-display text-2xl leading-tight">{f.titre}</h3>
+                  <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{f.description}</p>
+                  <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm">
+                    <span className="text-muted-foreground">{f.dureeEnJours ? `${f.dureeEnJours}j` : "—"}</span>
+                    <span className="font-display text-xl text-primary">{f.tarif ? `${f.tarif} €` : "Sur devis"}</span>
+                  </div>
+                </Wrapper>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* CTA */}
@@ -170,8 +210,8 @@ function Index() {
               <Link to="/contact" className="rounded-md bg-ochre px-5 py-3 text-sm font-medium text-ochre-foreground transition-colors hover:opacity-90">
                 Demander une démo
               </Link>
-              <Link to="/admin" className="rounded-md border border-primary-foreground/30 px-5 py-3 text-sm font-medium transition-colors hover:bg-primary-foreground/10">
-                Explorer l'admin
+              <Link to={isAuthenticated ? (user?.role === "admin" ? "/admin" : user?.role === "formateur" ? "/formateur/dashboard" : "/catalogue") : "/connexion"} className="rounded-md border border-primary-foreground/30 px-5 py-3 text-sm font-medium transition-colors hover:bg-primary-foreground/10">
+                {isAuthenticated ? (user?.role === "admin" ? "Administration" : "Mon espace") : "Se connecter"}
               </Link>
             </div>
           </div>

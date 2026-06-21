@@ -6,7 +6,7 @@ import { PageShell } from "@/components/page-shell";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — FormaPro" },
+      { title: "Contact — StirForma" },
       { name: "description", content: "Discutons de votre projet formation." },
     ],
   }),

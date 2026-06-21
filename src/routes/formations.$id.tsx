@@ -1,127 +1,168 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Calendar, Check, Clock, MapPin, Users, Award, FileText } from "lucide-react";
+import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProtectedRoute } from "@/components/protected-route";
 import { PageShell } from "@/components/page-shell";
-import { formations, type Formation } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/auth-context";
+import { Calendar, MapPin, Users, Star } from "lucide-react";
+import { toast } from "sonner";
+import { getFormation } from "@/lib/api/formations";
+import { enrollInSession } from "@/lib/api/sessions";
 
 export const Route = createFileRoute("/formations/$id")({
-  loader: ({ params }) => {
-    const formation = formations.find((f) => f.id === params.id);
-    if (!formation) throw notFound();
-    return { formation };
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.formation.title ?? "Formation"} — FormaPro` },
-      { name: "description", content: loaderData?.formation.description ?? "Formation FormaPro" },
-    ],
-  }),
-  notFoundComponent: () => (
-    <PageShell>
-      <div className="mx-auto max-w-3xl px-6 py-32 text-center">
-        <h1 className="font-display text-5xl">Formation introuvable</h1>
-        <Link to="/catalogue" className="mt-6 inline-block text-primary hover:underline">← Retour au catalogue</Link>
-      </div>
-    </PageShell>
-  ),
-  errorComponent: () => <PageShell><div className="p-16 text-center">Erreur de chargement.</div></PageShell>,
   component: FormationPage,
 });
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+}
+
 function FormationPage() {
-  const { formation: f } = Route.useLoaderData() as { formation: Formation };
+  const { id } = Route.useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: formation, isLoading } = useQuery({
+    queryKey: ["formation", id],
+    queryFn: () => getFormation(id),
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: (sessionId: string) => enrollInSession(sessionId),
+    onSuccess: () => {
+      toast.success("Inscription confirmée !");
+      queryClient.invalidateQueries({ queryKey: ["formation", id] });
+    },
+    onError: (err: any) => {
+      try { const msg = JSON.parse(err.message); toast.error(msg.message || "Erreur lors de l'inscription"); }
+      catch { toast.error("Erreur lors de l'inscription"); }
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <ProtectedRoute>
+      <PageShell>
+        <div className="flex justify-center py-32 text-muted-foreground">Chargement...</div>
+      </PageShell>
+      </ProtectedRoute>
+    );
+  }
+
+  if (!formation) throw notFound();
+
+  const sessions = formation.sessions || [];
+
+  const handleEnroll = (sessionId: string) => {
+    if (!user) { navigate({ to: "/connexion" }); return; }
+    if (user.role !== "participant") { toast.error("Seuls les participants peuvent s'inscrire."); return; }
+    enrollMutation.mutate(sessionId);
+  };
+
   return (
+    <ProtectedRoute>
     <PageShell>
-      <article className="mx-auto max-w-5xl px-6 py-12">
-        <Link to="/catalogue" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Retour au catalogue
-        </Link>
-
-        <header className="mt-6">
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-md bg-secondary px-2 py-1 font-medium">{f.category}</span>
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">{f.type}</span>
-            <span className="rounded-md bg-ochre/20 px-2 py-1 text-ochre-foreground">{f.level}</span>
+      <section className="mx-auto max-w-7xl px-6 pt-12">
+        <Link to="/catalogue" className="text-sm text-muted-foreground hover:text-foreground">← Catalogue</Link>
+        <div className="mt-6 grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/10 to-secondary/10 aspect-[16/10] flex items-center justify-center">
+              {formation.imageUrl ? (
+                <img src={`http://localhost:3001${formation.imageUrl}`} alt={formation.titre} className="h-full w-full object-cover" />
+              ) : (
+                <span className="font-display text-6xl text-muted-foreground/20">{formation.titre[0]}</span>
+              )}
+            </div>
           </div>
-          <h1 className="mt-4 font-display text-5xl leading-tight md:text-6xl">{f.title}</h1>
-          <p className="mt-4 max-w-3xl text-lg text-muted-foreground">{f.description}</p>
-        </header>
-
-        <div className="mt-10 grid gap-10 md:grid-cols-3">
-          <div className="space-y-10 md:col-span-2">
-            <section>
-              <h2 className="font-display text-3xl">Objectifs pédagogiques</h2>
-              <ul className="mt-4 space-y-3">
-                {f.objectives.map((o) => (
-                  <li key={o} className="flex items-start gap-3 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> <span>{o}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="font-display text-3xl">Prérequis</h2>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                {f.prerequisites.map((p) => <li key={p}>· {p}</li>)}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="font-display text-3xl">Programme détaillé</h2>
-              <ol className="mt-4 space-y-4">
-                {[1, 2, 3, 4].map((n) => (
-                  <li key={n} className="rounded-lg border border-border bg-card p-5">
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-sm font-medium text-primary-foreground">{n}</span>
-                      <h3 className="font-display text-xl">Module {n} — Sujet clé</h3>
-                    </div>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      Contenu pédagogique combinant théorie, études de cas et exercices pratiques en groupe.
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            <section className="rounded-xl border border-border bg-card p-6">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary text-lg font-display text-primary-foreground">
-                  {f.trainer.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Animée par</p>
-                  <p className="font-display text-xl">{f.trainer}</p>
-                </div>
+          <div className="lg:col-span-5">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">{formation.categorie || "Général"}</div>
+            <h1 className="mt-3 font-display text-4xl md:text-5xl">{formation.titre}</h1>
+            <p className="mt-4 text-muted-foreground">{formation.description}</p>
+            <div className="mt-8 grid grid-cols-3 gap-4 rounded-xl border border-border p-4">
+              <div>
+                <div className="text-xs text-muted-foreground">Niveau</div>
+                <div className="mt-1 text-sm font-medium capitalize">{formation.type}</div>
               </div>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Consultant·e senior, plus de 10 ans d'expérience auprès d'entreprises françaises et internationales.
-              </p>
-            </section>
-          </div>
-
-          <aside className="md:col-span-1">
-            <div className="sticky top-24 rounded-xl border border-border bg-card p-6">
-              <div className="font-display text-4xl text-primary">{f.price} €<span className="text-sm text-muted-foreground"> HT / pers.</span></div>
-              <ul className="mt-5 space-y-3 text-sm">
-                <li className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> {f.nextDate}</li>
-                <li className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary" /> {f.duration}</li>
-                <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> {f.location}</li>
-                <li className="flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> {f.enrolled}/{f.seats} inscrits</li>
-              </ul>
-              <button className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-                S'inscrire à cette session
-              </button>
-              <button className="mt-2 w-full rounded-md border border-border bg-background px-4 py-3 text-sm font-medium transition-colors hover:bg-secondary">
-                Demander un devis intra
-              </button>
-              <div className="mt-6 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-2"><Award className="h-3.5 w-3.5" /> Certificat signé électroniquement</div>
-                <div className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Support PDF inclus</div>
+              <div>
+                <div className="text-xs text-muted-foreground">Durée</div>
+                <div className="mt-1 text-sm font-medium">{formation.dureeEnJours} jour{formation.dureeEnJours > 1 ? "s" : ""}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Tarif</div>
+                <div className="mt-1 text-sm font-medium">{formation.tarif ? `${formation.tarif} €` : "Sur devis"}</div>
               </div>
             </div>
-          </aside>
+          </div>
         </div>
-      </article>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <h2 className="font-display text-3xl">Prochaines sessions</h2>
+        <div className="mt-8 space-y-3">
+          {sessions.length === 0 && (
+            <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
+              Aucune session programmée pour l'instant.
+            </div>
+          )}
+          {sessions.map((s) => {
+            const formateur = s.formateurs?.[0];
+            const enrolled = s.participants?.some((p: { id: string }) => p.id === user?.id);
+            const count = s.participants?.length || 0;
+            const full = count >= (formation.capaciteMax || 999);
+            return (
+              <div key={s.id} className="grid items-center gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-12">
+                <div className="md:col-span-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    {fmtDate(s.dateDebut)} → {fmtDate(s.dateFin)}
+                  </div>
+                </div>
+                <div className="md:col-span-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    {s.lieu || "Distanciel"}
+                  </div>
+                </div>
+                <div className="md:col-span-3 text-sm text-muted-foreground">
+                  Avec <span className="text-foreground">
+                    {formateur ? `${formateur.prenom} ${formateur.nom}` : "Formateur à définir"}
+                  </span>
+                </div>
+                <div className="md:col-span-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    {count}/{formation.capaciteMax || "—"}
+                  </div>
+                </div>
+                <div className="md:col-span-1 md:text-right">
+                  {enrolled ? (
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-accent text-accent-foreground rounded-full">Inscrit</Badge>
+                      <Button variant="outline" size="sm" className="gap-1.5 rounded-full" asChild>
+                        <Link to="/evaluation/$sessionId" params={{ sessionId: s.id }}>
+                          <Star className="h-4 w-4" /> Évaluer
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      disabled={full || enrollMutation.isPending}
+                      onClick={() => handleEnroll(s.id)}
+                      className="rounded-full"
+                    >
+                      {full ? "Complet" : enrollMutation.isPending ? "..." : "S'inscrire"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </PageShell>
+    </ProtectedRoute>
   );
 }

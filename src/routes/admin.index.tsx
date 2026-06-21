@@ -1,28 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, BookOpen, Calendar, GraduationCap, TrendingUp, Users } from "lucide-react";
+import { ArrowUpRight, BookOpen, Calendar, GraduationCap, TrendingUp, Users, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin-shell";
-import { formations } from "@/lib/data";
+import { getFormations } from "@/lib/api/formations";
+import { getSessions } from "@/lib/api/sessions";
+import { getEmployes } from "@/lib/api/employes";
+import { getFormateurs } from "@/lib/api/formateurs";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
 });
 
-const kpis = [
-  { label: "Sessions ce mois", value: "42", delta: "+12%", icon: Calendar, tone: "primary" as const },
-  { label: "Participants actifs", value: "1 284", delta: "+8%", icon: Users, tone: "ochre" as const },
-  { label: "Formations au catalogue", value: "247", delta: "+5", icon: BookOpen, tone: "primary" as const },
-  { label: "Taux de satisfaction", value: "98%", delta: "+1.2 pts", icon: TrendingUp, tone: "ochre" as const },
-];
-
-const activity = [
-  { who: "Camille Vasseur", what: "a clôturé la session Leadership #1284", when: "il y a 12 min" },
-  { who: "Sophie Lambert", what: "a téléversé un nouveau support Excel avancé", when: "il y a 1 h" },
-  { who: "Idriss Bennani", what: "a signé 12 certificats Cybersécurité", when: "il y a 3 h" },
-  { who: "Hugo Renault", what: "a confirmé sa disponibilité du 22 juin", when: "hier" },
-  { who: "Léa Marchetti", what: "a publié une nouvelle formation Design Sprint", when: "hier" },
-];
-
 function AdminDashboard() {
+  const { data: formations } = useQuery({ queryKey: ["formations"], queryFn: getFormations });
+  const { data: sessions } = useQuery({ queryKey: ["sessions"], queryFn: getSessions });
+  const { data: employes } = useQuery({ queryKey: ["employes"], queryFn: getEmployes });
+  const { data: formateurs } = useQuery({ queryKey: ["formateurs"], queryFn: getFormateurs });
+
+  const sessionsCeMois = sessions?.filter((s) => {
+    const d = new Date(s.dateDebut);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length || 0;
+
+  const kpis = [
+    { label: "Sessions ce mois", value: String(sessionsCeMois), delta: "—", icon: Calendar, tone: "primary" as const },
+    { label: "Participants actifs", value: String(employes?.length || 0), delta: "—", icon: Users, tone: "ochre" as const },
+    { label: "Formations au catalogue", value: String(formations?.length || 0), delta: "—", icon: BookOpen, tone: "primary" as const },
+    { label: "Taux de satisfaction", value: "98%", delta: "—", icon: TrendingUp, tone: "ochre" as const },
+  ];
+
   return (
     <AdminShell
       title="Bonjour Sarah."
@@ -79,17 +86,13 @@ function AdminDashboard() {
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="font-display text-2xl">Activité récente</h2>
           <ul className="mt-5 space-y-4">
-            {activity.map((a, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                  {a.who.split(" ").map((w) => w[0]).join("")}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm"><strong>{a.who}</strong> <span className="text-muted-foreground">{a.what}</span></p>
-                  <p className="text-xs text-muted-foreground">{a.when}</p>
-                </div>
-              </li>
-            ))}
+            <li className="flex items-start gap-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">CV</div>
+              <div className="min-w-0">
+                <p className="text-sm"><strong>Plateforme active</strong> <span className="text-muted-foreground">— connectée</span></p>
+                <p className="text-xs text-muted-foreground">à l'instant</p>
+              </div>
+            </li>
           </ul>
         </div>
       </div>
@@ -116,23 +119,23 @@ function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {formations.slice(0, 5).map((f) => {
-                const full = f.enrolled >= f.seats;
-                return (
-                  <tr key={f.id} className="border-t border-border">
-                    <td className="px-4 py-3 font-medium">{f.title}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{f.trainer}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{f.nextDate}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{f.location}</td>
-                    <td className="px-4 py-3">{f.enrolled}/{f.seats}</td>
-                    <td className="px-4 py-3">
-                      <span className={"rounded-full px-2 py-0.5 text-xs " + (full ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary")}>
-                        {full ? "Complet" : "Ouvert"}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+              {(!sessions || sessions.length === 0) && (
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Aucune session planifiée</td></tr>
+              )}
+              {sessions?.slice(0, 5).map((s) => (
+                <tr key={s.id} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium">{s.formation?.titre || "Formation"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.formateurs?.map((f: any) => `${f.prenom} ${f.nom}`).join(", ") || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{new Date(s.dateDebut).toLocaleDateString("fr-FR")}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.lieu || "—"}</td>
+                  <td className="px-4 py-3">{s.participants?.length || 0}</td>
+                  <td className="px-4 py-3">
+                    <span className={"rounded-full px-2 py-0.5 text-xs " + (s.isCancelled ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary")}>
+                      {s.isCancelled ? "Annulée" : s.isCompleted ? "Terminée" : "Planifiée"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

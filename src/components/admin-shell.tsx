@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useRouter } from "@tanstack/react-router";
+import { useRef, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -11,26 +12,44 @@ import {
   Bell,
   Search,
   LogOut,
+  Moon,
+  Sun,
+  UserCheck,
+  IdCard,
+  Star,
+  Loader2,
 } from "lucide-react";
+import { useAuth } from "../contexts/auth-context";
+import { getNotifications, markNotificationAsRead, type Notification } from "@/lib/api/notifications";
 
 const nav = [
   { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { to: "/admin/formations", label: "Formations", icon: BookOpen },
   { to: "/admin/sessions", label: "Sessions", icon: CalendarDays },
+  { to: "/admin/employes", label: "Employés", icon: IdCard },
   { to: "/admin/formateurs", label: "Formateurs", icon: GraduationCap },
   { to: "/admin/participants", label: "Participants", icon: Users },
+  { to: "/admin/approbations", label: "Approbations", icon: UserCheck },
   { to: "/admin/documents", label: "Documents", icon: FileText },
+  { to: "/admin/evaluations", label: "Évaluations", icon: Star },
 ];
 
 export function AdminShell({ title, subtitle, actions, children }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.navigate({ to: "/" });
+  };
   return (
     <div className="min-h-screen bg-secondary/40 text-foreground">
       <div className="flex">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground font-display text-xl">F</span>
-            <span className="font-display text-2xl">FormaPro</span>
+            <img src="/images/logoadmin.png" alt="StirForma" className="h-10 w-auto" />
+            <span className="font-display text-2xl">StirForma</span>
             <span className="ml-auto rounded-md bg-sidebar-accent px-2 py-0.5 text-[10px] uppercase tracking-wide">Admin</span>
           </div>
           <nav className="flex-1 space-y-1 p-3">
@@ -54,18 +73,20 @@ export function AdminShell({ title, subtitle, actions, children }: { title: stri
             })}
           </nav>
           <div className="border-t border-sidebar-border p-3">
-            <Link to="/" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-              <LogOut className="h-4 w-4" /> Retour au site
-            </Link>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent">
-              <Settings className="h-4 w-4" /> Paramètres
+            <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+              <LogOut className="h-4 w-4" /> Déconnexion
             </button>
             <div className="mt-3 flex items-center gap-3 rounded-md bg-sidebar-accent/60 p-3">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-sidebar-primary text-sm font-medium text-sidebar-primary-foreground">SM</div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">Sarah Moreau</p>
-                <p className="truncate text-xs text-sidebar-foreground/70">Administratrice</p>
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sidebar-primary text-sm font-medium text-sidebar-primary-foreground">
+                {user ? user.username.slice(0, 2).toUpperCase() : "U"}
               </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{user?.username || "Utilisateur"}</p>
+                <p className="truncate text-xs text-sidebar-foreground/70 capitalize">{user?.role || "Administrateur"}</p>
+              </div>
+              <Link to="/admin/parametres" className="shrink-0 rounded-md p-1.5 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                <Settings className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </aside>
@@ -77,10 +98,8 @@ export function AdminShell({ title, subtitle, actions, children }: { title: stri
               <input placeholder="Rechercher (formations, participants, sessions…)" className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
               <kbd className="hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground sm:inline-block">⌘K</kbd>
             </div>
-            <button className="relative rounded-md p-2 hover:bg-secondary">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-ochre" />
-            </button>
+            <DarkModeToggle />
+            <NotificationBell />
           </header>
 
           <div className="px-6 py-8">
@@ -92,9 +111,110 @@ export function AdminShell({ title, subtitle, actions, children }: { title: stri
               <div className="flex shrink-0 items-center gap-2">{actions}</div>
             </div>
             {children}
+            </div>
           </div>
         </div>
       </div>
+  );
+}
+
+function DarkModeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setDark(true);
+    }
+  }, []);
+
+  function toggle() {
+    const next = !dark;
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+    setDark(next);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className="rounded-md border border-border p-2 text-foreground transition-colors hover:bg-secondary"
+      title={dark ? 'Mode clair' : 'Mode sombre'}
+    >
+      {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </button>
+  );
+}
+
+function NotificationBell() {
+  const ddRef = useRef<HTMLDivElement>(null);
+  const [items, setItems] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const router = useRouter();
+
+  function toggle() {
+    if (!open) {
+      setLoading(true);
+      getNotifications().then((data) => { setItems(data); setLoading(false); }).catch(() => { setItems([]); setLoading(false); });
+    }
+    setOpen(!open);
+  }
+
+  async function markRead(id: string) {
+    try {
+      await markNotificationAsRead(id);
+      setItems((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
+    } catch {}
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={toggle}
+        className="relative rounded-md border border-border p-2 text-foreground transition-colors hover:bg-secondary"
+      >
+        <Bell className="h-4 w-4" />
+        {items.filter((n) => !n.isRead).length > 0 && (
+          <span className="absolute -right-1 -top-1 grid h-4 min-w-[16px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+            {items.filter((n) => !n.isRead).length > 9 ? "9+" : items.filter((n) => !n.isRead).length}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-1 w-80 rounded-md border bg-popover shadow-md" ref={ddRef}>
+          <div className="border-b border-border px-3 py-2 text-xs font-medium text-muted-foreground">
+            Notifications
+          </div>
+          {loading ? (
+            <div className="flex justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+          ) : items.length === 0 ? (
+            <div className="px-3 py-4 text-center text-xs text-muted-foreground">Aucune notification</div>
+          ) : (
+            <div className="max-h-72 overflow-y-auto">
+              {items.slice(0, 10).map((n) => (
+                <button
+                  key={n.id}
+                  type="button"
+                  className={`flex w-full flex-col gap-0.5 px-3 py-2.5 text-left text-xs transition-colors hover:bg-secondary ${!n.isRead ? "bg-primary/5" : ""}`}
+                  onClick={() => {
+                    markRead(n.id);
+                    setOpen(false);
+                    if (n.lienAction) router.navigate({ to: n.lienAction });
+                  }}
+                >
+                  <span className="font-medium text-foreground">{n.titre}</span>
+                  <span className="text-muted-foreground line-clamp-2">{n.message}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

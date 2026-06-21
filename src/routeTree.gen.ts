@@ -9,20 +9,45 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfilRouteImport } from './routes/profil'
+import { Route as MesFormationsRouteImport } from './routes/mes-formations'
+import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as FormateursRouteImport } from './routes/formateurs'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as FormationsIdRouteImport } from './routes/formations.$id'
+import { Route as FormateurDashboardRouteImport } from './routes/formateur.dashboard'
+import { Route as EvaluationSessionIdRouteImport } from './routes/evaluation.$sessionId'
 import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
 import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
+import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 import { Route as AdminFormationsRouteImport } from './routes/admin.formations'
 import { Route as AdminFormateursRouteImport } from './routes/admin.formateurs'
+import { Route as AdminEvaluationsRouteImport } from './routes/admin.evaluations'
+import { Route as AdminEmployesRouteImport } from './routes/admin.employes'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
+import { Route as AdminApprobationsRouteImport } from './routes/admin.approbations'
 
+const ProfilRoute = ProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesFormationsRoute = MesFormationsRouteImport.update({
+  id: '/mes-formations',
+  path: '/mes-formations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InscriptionRoute = InscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormateursRoute = FormateursRouteImport.update({
   id: '/formateurs',
   path: '/formateurs',
@@ -31,6 +56,11 @@ const FormateursRoute = FormateursRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnexionRoute = ConnexionRouteImport.update({
+  id: '/connexion',
+  path: '/connexion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogueRoute = CatalogueRouteImport.update({
@@ -63,6 +93,16 @@ const FormationsIdRoute = FormationsIdRouteImport.update({
   path: '/formations/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormateurDashboardRoute = FormateurDashboardRouteImport.update({
+  id: '/formateur/dashboard',
+  path: '/formateur/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationSessionIdRoute = EvaluationSessionIdRouteImport.update({
+  id: '/evaluation/$sessionId',
+  path: '/evaluation/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSessionsRoute = AdminSessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
@@ -71,6 +111,11 @@ const AdminSessionsRoute = AdminSessionsRouteImport.update({
 const AdminParticipantsRoute = AdminParticipantsRouteImport.update({
   id: '/participants',
   path: '/participants',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminParametresRoute = AdminParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFormationsRoute = AdminFormationsRouteImport.update({
@@ -83,9 +128,24 @@ const AdminFormateursRoute = AdminFormateursRouteImport.update({
   path: '/formateurs',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEvaluationsRoute = AdminEvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEmployesRoute = AdminEmployesRouteImport.update({
+  id: '/employes',
+  path: '/employes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApprobationsRoute = AdminApprobationsRouteImport.update({
+  id: '/approbations',
+  path: '/approbations',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -94,13 +154,23 @@ export interface FileRoutesByFullPath {
   '/a-propos': typeof AProposRoute
   '/admin': typeof AdminRouteWithChildren
   '/catalogue': typeof CatalogueRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/formateurs': typeof FormateursRoute
+  '/inscription': typeof InscriptionRoute
+  '/mes-formations': typeof MesFormationsRoute
+  '/profil': typeof ProfilRoute
+  '/admin/approbations': typeof AdminApprobationsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/employes': typeof AdminEmployesRoute
+  '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
+  '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -108,13 +178,23 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/formateurs': typeof FormateursRoute
+  '/inscription': typeof InscriptionRoute
+  '/mes-formations': typeof MesFormationsRoute
+  '/profil': typeof ProfilRoute
+  '/admin/approbations': typeof AdminApprobationsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/employes': typeof AdminEmployesRoute
+  '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
+  '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -124,13 +204,23 @@ export interface FileRoutesById {
   '/a-propos': typeof AProposRoute
   '/admin': typeof AdminRouteWithChildren
   '/catalogue': typeof CatalogueRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/formateurs': typeof FormateursRoute
+  '/inscription': typeof InscriptionRoute
+  '/mes-formations': typeof MesFormationsRoute
+  '/profil': typeof ProfilRoute
+  '/admin/approbations': typeof AdminApprobationsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/employes': typeof AdminEmployesRoute
+  '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
+  '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -141,13 +231,23 @@ export interface FileRouteTypes {
     | '/a-propos'
     | '/admin'
     | '/catalogue'
+    | '/connexion'
     | '/contact'
     | '/formateurs'
+    | '/inscription'
+    | '/mes-formations'
+    | '/profil'
+    | '/admin/approbations'
     | '/admin/documents'
+    | '/admin/employes'
+    | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
+    | '/evaluation/$sessionId'
+    | '/formateur/dashboard'
     | '/formations/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -155,13 +255,23 @@ export interface FileRouteTypes {
     | '/'
     | '/a-propos'
     | '/catalogue'
+    | '/connexion'
     | '/contact'
     | '/formateurs'
+    | '/inscription'
+    | '/mes-formations'
+    | '/profil'
+    | '/admin/approbations'
     | '/admin/documents'
+    | '/admin/employes'
+    | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
+    | '/evaluation/$sessionId'
+    | '/formateur/dashboard'
     | '/formations/$id'
     | '/admin'
   id:
@@ -170,13 +280,23 @@ export interface FileRouteTypes {
     | '/a-propos'
     | '/admin'
     | '/catalogue'
+    | '/connexion'
     | '/contact'
     | '/formateurs'
+    | '/inscription'
+    | '/mes-formations'
+    | '/profil'
+    | '/admin/approbations'
     | '/admin/documents'
+    | '/admin/employes'
+    | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
+    | '/evaluation/$sessionId'
+    | '/formateur/dashboard'
     | '/formations/$id'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -186,13 +306,40 @@ export interface RootRouteChildren {
   AProposRoute: typeof AProposRoute
   AdminRoute: typeof AdminRouteWithChildren
   CatalogueRoute: typeof CatalogueRoute
+  ConnexionRoute: typeof ConnexionRoute
   ContactRoute: typeof ContactRoute
   FormateursRoute: typeof FormateursRoute
+  InscriptionRoute: typeof InscriptionRoute
+  MesFormationsRoute: typeof MesFormationsRoute
+  ProfilRoute: typeof ProfilRoute
+  EvaluationSessionIdRoute: typeof EvaluationSessionIdRoute
+  FormateurDashboardRoute: typeof FormateurDashboardRoute
   FormationsIdRoute: typeof FormationsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profil': {
+      id: '/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof ProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mes-formations': {
+      id: '/mes-formations'
+      path: '/mes-formations'
+      fullPath: '/mes-formations'
+      preLoaderRoute: typeof MesFormationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inscription': {
+      id: '/inscription'
+      path: '/inscription'
+      fullPath: '/inscription'
+      preLoaderRoute: typeof InscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/formateurs': {
       id: '/formateurs'
       path: '/formateurs'
@@ -205,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connexion': {
+      id: '/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof ConnexionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/catalogue': {
@@ -249,6 +403,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormationsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/formateur/dashboard': {
+      id: '/formateur/dashboard'
+      path: '/formateur/dashboard'
+      fullPath: '/formateur/dashboard'
+      preLoaderRoute: typeof FormateurDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluation/$sessionId': {
+      id: '/evaluation/$sessionId'
+      path: '/evaluation/$sessionId'
+      fullPath: '/evaluation/$sessionId'
+      preLoaderRoute: typeof EvaluationSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/sessions': {
       id: '/admin/sessions'
       path: '/sessions'
@@ -261,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/participants'
       fullPath: '/admin/participants'
       preLoaderRoute: typeof AdminParticipantsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/parametres': {
+      id: '/admin/parametres'
+      path: '/parametres'
+      fullPath: '/admin/parametres'
+      preLoaderRoute: typeof AdminParametresRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/formations': {
@@ -277,6 +452,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFormateursRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/evaluations': {
+      id: '/admin/evaluations'
+      path: '/evaluations'
+      fullPath: '/admin/evaluations'
+      preLoaderRoute: typeof AdminEvaluationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/employes': {
+      id: '/admin/employes'
+      path: '/employes'
+      fullPath: '/admin/employes'
+      preLoaderRoute: typeof AdminEmployesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/documents': {
       id: '/admin/documents'
       path: '/documents'
@@ -284,22 +473,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDocumentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/approbations': {
+      id: '/admin/approbations'
+      path: '/approbations'
+      fullPath: '/admin/approbations'
+      preLoaderRoute: typeof AdminApprobationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminApprobationsRoute: typeof AdminApprobationsRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminEmployesRoute: typeof AdminEmployesRoute
+  AdminEvaluationsRoute: typeof AdminEvaluationsRoute
   AdminFormateursRoute: typeof AdminFormateursRoute
   AdminFormationsRoute: typeof AdminFormationsRoute
+  AdminParametresRoute: typeof AdminParametresRoute
   AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminSessionsRoute: typeof AdminSessionsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApprobationsRoute: AdminApprobationsRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminEmployesRoute: AdminEmployesRoute,
+  AdminEvaluationsRoute: AdminEvaluationsRoute,
   AdminFormateursRoute: AdminFormateursRoute,
   AdminFormationsRoute: AdminFormationsRoute,
+  AdminParametresRoute: AdminParametresRoute,
   AdminParticipantsRoute: AdminParticipantsRoute,
   AdminSessionsRoute: AdminSessionsRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -312,10 +516,26 @@ const rootRouteChildren: RootRouteChildren = {
   AProposRoute: AProposRoute,
   AdminRoute: AdminRouteWithChildren,
   CatalogueRoute: CatalogueRoute,
+  ConnexionRoute: ConnexionRoute,
   ContactRoute: ContactRoute,
   FormateursRoute: FormateursRoute,
+  InscriptionRoute: InscriptionRoute,
+  MesFormationsRoute: MesFormationsRoute,
+  ProfilRoute: ProfilRoute,
+  EvaluationSessionIdRoute: EvaluationSessionIdRoute,
+  FormateurDashboardRoute: FormateurDashboardRoute,
   FormationsIdRoute: FormationsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

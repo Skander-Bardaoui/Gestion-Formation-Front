@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "../contexts/auth-context";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,10 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FormaPro — Plateforme de gestion des formations" },
-      { name: "description", content: "FormaPro centralise vos formations intra, inter et catalogue : sessions, formateurs, participants, certificats." },
-      { name: "author", content: "FormaPro" },
-      { property: "og:title", content: "FormaPro — Gestion des formations" },
+      { title: "StirForma — Plateforme de gestion des formations" },
+      { name: "description", content: "StirForma centralise vos formations intra, inter et catalogue : sessions, formateurs, participants, certificats." },
+      { name: "author", content: "StirForma" },
+      { property: "og:title", content: "StirForma — Gestion des formations" },
       { property: "og:description", content: "Plateforme tout-en-un pour piloter vos formations professionnelles." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -107,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <HeadContent />
       </head>
@@ -124,8 +126,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

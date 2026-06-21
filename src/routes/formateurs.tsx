@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Star, MapPin } from "lucide-react";
+import { Star } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ProtectedRoute } from "@/components/protected-route";
 import { PageShell } from "@/components/page-shell";
-import { trainers } from "@/lib/data";
+import { getFormateurs, type Formateur } from "@/lib/api/formateurs";
 
 export const Route = createFileRoute("/formateurs")({
   head: () => ({
     meta: [
-      { title: "Nos formateurs — FormaPro" },
+      { title: "Nos formateurs — StirForma" },
       { name: "description", content: "Découvrez les experts qui animent nos formations." },
     ],
   }),
@@ -14,7 +16,10 @@ export const Route = createFileRoute("/formateurs")({
 });
 
 function TrainersPage() {
+  const { data: formateurs, isLoading } = useQuery({ queryKey: ["formateurs"], queryFn: getFormateurs });
+
   return (
+    <ProtectedRoute>
     <PageShell>
       <section className="border-b border-border bg-card/50">
         <div className="mx-auto max-w-7xl px-6 py-16">
@@ -26,27 +31,35 @@ function TrainersPage() {
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {trainers.map((t) => (
-            <article key={t.name} className="rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className="flex items-center gap-4">
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-primary font-display text-xl text-primary-foreground">
-                  {t.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+        {isLoading ? (
+          <div className="flex justify-center py-16 text-muted-foreground">Chargement...</div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {formateurs?.length === 0 && (
+              <div className="col-span-full py-12 text-center text-muted-foreground">Aucun formateur pour le moment</div>
+            )}
+            {formateurs?.map((t) => (
+              <article key={t.id} className="rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex items-center gap-4">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-primary font-display text-xl text-primary-foreground">
+                    {t.prenom?.[0]}{t.nom?.[0]}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl">{t.prenom} {t.nom}</h3>
+                    <p className="text-sm text-muted-foreground">{t.specialites || "Formateur"}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-display text-xl">{t.name}</h3>
-                  <p className="text-sm text-muted-foreground">{t.expertise}</p>
+                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
+                  <span className="flex items-center gap-1 text-ochre-foreground"><Star className="h-4 w-4 fill-ochre text-ochre" /> {t.noteGlobale ?? "—"}</span>
+                  <span className="text-muted-foreground">{t.sessionsAsFormateur?.length || 0} sessions</span>
+                  <span className="text-muted-foreground">{t.email}</span>
                 </div>
-              </div>
-              <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
-                <span className="flex items-center gap-1 text-ochre-foreground"><Star className="h-4 w-4 fill-ochre text-ochre" /> {t.rating}</span>
-                <span className="text-muted-foreground">{t.sessions} sessions</span>
-                <span className="flex items-center gap-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {t.city}</span>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </PageShell>
+    </ProtectedRoute>
   );
 }

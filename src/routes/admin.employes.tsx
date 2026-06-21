@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Plus, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
-import { getParticipants, createParticipant, updateParticipant, deleteParticipant, type Participant } from "@/lib/api/users";
+import { getEmployes, createEmploye, updateEmploye, deleteEmploye, type Employe } from "@/lib/api/employes";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,14 +25,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { employeSchema } from "@/lib/validations";
 
-export const Route = createFileRoute("/admin/participants")({
-  component: AdminParticipants,
+export const Route = createFileRoute("/admin/employes")({
+  component: AdminEmployes,
 });
 
-const emptyForm = { nom: "", prenom: "", email: "", telephone: "", poste: "", departement: "", entrepriseText: "" };
+const emptyForm = { nom: "", prenom: "", email: "", poste: "", departement: "", telephone: "", entrepriseText: "" };
 
-function AdminParticipants() {
+function AdminEmployes() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -40,36 +41,35 @@ function AdminParticipants() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const { data: participants, isLoading } = useQuery({ queryKey: ["participants"], queryFn: getParticipants });
+  const { data: employes, isLoading } = useQuery({ queryKey: ["employes"], queryFn: getEmployes });
 
   const saveMutation = useMutation({
     mutationFn: () => {
       const { entrepriseText, ...rest } = form;
       const payload = { ...rest, entrepriseText: entrepriseText || undefined };
-      return editingId ? updateParticipant(editingId, payload as any) : createParticipant(payload as any);
+      return editingId ? updateEmploye(editingId, payload as any) : createEmploye(payload as any);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participants"] });
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
       setOpen(false);
       setEditingId(null);
       setForm(emptyForm);
-      toast.success(editingId ? "Participant modifié" : "Participant ajouté — email de connexion envoyé");
+      toast.success(editingId ? "Employé modifié" : "Employé ajouté — identifiant généré automatiquement");
     },
     onError: (err: any) => {
-      try { const msg = JSON.parse(err.message); toast.error(msg.message || "Erreur"); }
-      catch { toast.error("Erreur lors de l'enregistrement"); }
+      toast.error(err.message || "Erreur lors de l'enregistrement");
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteParticipant(id),
+    mutationFn: (id: string) => deleteEmploye(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participants"] });
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
       setDeleteId(null);
-      toast.success("Participant supprimé");
+      toast.success("Employé supprimé");
     },
     onError: () => {
-      queryClient.invalidateQueries({ queryKey: ["participants"] });
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
       setDeleteId(null);
     },
   });
@@ -80,37 +80,36 @@ function AdminParticipants() {
     setOpen(true);
   };
 
-  const openEdit = (p: Participant) => {
+  const openEdit = (p: Employe) => {
     setEditingId(p.id);
     setForm({
       nom: p.nom,
       prenom: p.prenom,
       email: p.email,
-      poste: "",
-      departement: "",
+      poste: p.poste || "",
+      departement: p.departement || "",
       telephone: p.telephone || "",
-      entrepriseText: "",
+      entrepriseText: p.entrepriseText || "",
     });
     setOpen(true);
   };
 
   return (
     <AdminShell
-      title="Participants"
-      subtitle="Utilisateurs inscrits sur la plateforme (sans identifiant)."
+      title="Employés"
+      subtitle="Gestion des employés avec identifiant unique (Année + STG + Incrément)."
       actions={
         <>
-          <Button variant="outline" size="sm"><Download className="h-4 w-4" /> Exporter</Button>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={openCreate}><Plus className="h-4 w-4" /> Ajouter</Button>
+              <Button size="sm" onClick={openCreate}><Plus className="h-4 w-4" /> Ajouter un employé</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editingId ? "Modifier le participant" : "Nouveau participant"}</DialogTitle></DialogHeader>
-              <form onSubmit={(e) => { e.preventDefault(); setFormErrors({}); if (!form.nom || !form.prenom || !form.email) { const fe: Record<string, string> = {}; if (!form.nom) fe.nom = "Requis"; if (!form.prenom) fe.prenom = "Requis"; if (!form.email) fe.email = "Requis"; setFormErrors(fe); return; } saveMutation.mutate(); }} className="space-y-4">
+              <DialogHeader><DialogTitle>{editingId ? "Modifier l'employé" : "Nouvel employé"}</DialogTitle></DialogHeader>
+              <form onSubmit={(e) => { e.preventDefault(); setFormErrors({}); const r = employeSchema.safeParse(form); if (!r.success) { const fe: Record<string, string> = {}; r.error.issues.forEach((i) => { const f = i.path[0] as string; if (!fe[f]) fe[f] = i.message; }); setFormErrors(fe); return; } saveMutation.mutate(); }} className="space-y-4">
                 <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/20 p-3">
                   <p className="text-xs text-muted-foreground">
-                    Un email avec les identifiants de connexion sera envoyé automatiquement.
+                    L'identifiant unique sera généré automatiquement au format <span className="font-mono text-foreground">2026STG001</span> (Année + STG + numéro incrémental).
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -121,10 +120,17 @@ function AdminParticipants() {
                 </div>
                 <div><Label>Email</Label><Input type="email" placeholder="ex : jean.dupont@entreprise.fr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 {formErrors.email && <p className="mt-1 text-xs text-destructive">{formErrors.email}</p>}</div>
-                <div><Label>Téléphone</Label><Input placeholder="+216XXXXXXXX" value={form.telephone} onChange={(e) => setForm({ ...form, telephone: e.target.value })} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Téléphone</Label><Input placeholder="+216XXXXXXXX" value={form.telephone} onChange={(e) => setForm({ ...form, telephone: e.target.value })} /></div>
+                  <div><Label>Poste</Label><Input placeholder="ex : Chef de projet" value={form.poste} onChange={(e) => setForm({ ...form, poste: e.target.value })} /></div>
+                </div>
+                <div><Label>Département</Label><Input placeholder="ex : Informatique" value={form.departement} onChange={(e) => setForm({ ...form, departement: e.target.value })} /></div>
+                <div><Label>Entreprise</Label>
+                  <Input placeholder="ex : Société ABC" value={form.entrepriseText} onChange={(e) => setForm({ ...form, entrepriseText: e.target.value })} />
+                </div>
                 <Button type="submit" className="w-full" disabled={saveMutation.isPending}>
                   {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {editingId ? "Enregistrer les modifications" : "Ajouter le participant"}
+                  {editingId ? "Enregistrer les modifications" : "Ajouter l'employé"}
                 </Button>
               </form>
             </DialogContent>
@@ -139,19 +145,24 @@ function AdminParticipants() {
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Identifiant</th>
                 <th className="px-4 py-3">Nom</th>
                 <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Poste</th>
+                <th className="px-4 py-3">Département</th>
                 <th className="px-4 py-3">Téléphone</th>
-                <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
-              {participants?.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Aucun participant pour le moment</td></tr>
+              {employes?.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Aucun employé pour le moment</td></tr>
               )}
-              {participants?.map((p: Participant) => (
+              {employes?.map((p: Employe) => (
                 <tr key={p.id} className="border-t border-border hover:bg-secondary/40">
+                  <td className="px-4 py-3">
+                    <span className="font-mono text-xs font-medium text-primary">{p.identifiant || "—"}</span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
@@ -161,12 +172,9 @@ function AdminParticipants() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{p.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.poste || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.departement || "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{p.telephone || "—"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${p.isActive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
-                      {p.isActive ? "Actif" : "Inactif"}
-                    </span>
-                  </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => openEdit(p)} className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Pencil className="h-4 w-4" /></button>
@@ -183,7 +191,7 @@ function AdminParticipants() {
       <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce participant ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer cet employé ?</AlertDialogTitle>
             <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
