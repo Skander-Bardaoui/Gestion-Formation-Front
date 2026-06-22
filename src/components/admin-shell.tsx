@@ -17,6 +17,7 @@ import {
   UserCheck,
   IdCard,
   Star,
+  Wallet,
   Loader2,
 } from "lucide-react";
 import { useAuth } from "../contexts/auth-context";
@@ -30,6 +31,7 @@ const nav = [
   { to: "/admin/formateurs", label: "Formateurs", icon: GraduationCap },
   { to: "/admin/participants", label: "Participants", icon: Users },
   { to: "/admin/approbations", label: "Approbations", icon: UserCheck },
+  { to: "/admin/paiements", label: "Paiements", icon: Wallet },
   { to: "/admin/documents", label: "Documents", icon: FileText },
   { to: "/admin/evaluations", label: "Évaluations", icon: Star },
 ];
@@ -77,8 +79,12 @@ export function AdminShell({ title, subtitle, actions, children }: { title: stri
               <LogOut className="h-4 w-4" /> Déconnexion
             </button>
             <div className="mt-3 flex items-center gap-3 rounded-md bg-sidebar-accent/60 p-3">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sidebar-primary text-sm font-medium text-sidebar-primary-foreground">
-                {user ? user.username.slice(0, 2).toUpperCase() : "U"}
+              <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-sidebar-primary text-sm font-medium text-sidebar-primary-foreground">
+                {user?.avatarUrl ? (
+                  <img src={`http://localhost:3001${user.avatarUrl}`} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  (user ? user.username.slice(0, 2).toUpperCase() : "U")
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{user?.username || "Utilisateur"}</p>

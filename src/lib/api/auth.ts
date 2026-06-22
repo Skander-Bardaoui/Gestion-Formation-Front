@@ -17,6 +17,7 @@ export type AuthResponse = {
     nom: string;
     prenom: string;
     telephone?: string;
+    avatarUrl?: string;
   };
 };
 
@@ -29,6 +30,7 @@ export type User = {
   nom: string;
   prenom: string;
   telephone?: string;
+  avatarUrl?: string;
 };
 
 export async function login(dto: LoginDto): Promise<AuthResponse> {
@@ -49,6 +51,22 @@ export async function getProfile(): Promise<User> {
 
 export async function updateProfile(dto: { username?: string; nom?: string; prenom?: string; telephone?: string }): Promise<User> {
   return api.patch<User>('/auth/profile', dto);
+}
+
+export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const token = localStorage.getItem('access_token');
+  const res = await fetch('http://localhost:3001/api/auth/upload-avatar', {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Upload failed' }));
+    throw new Error(err.message || 'Erreur lors du téléchargement');
+  }
+  return res.json();
 }
 
 export async function changePassword(dto: { currentPassword: string; newPassword: string }): Promise<{ message: string }> {

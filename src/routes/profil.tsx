@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { Loader2, Save, Lock, User, Calendar, ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Save, Lock, User, Calendar, ArrowRight, Camera } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/protected-route";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/contexts/auth-context";
-import { updateProfile, changePassword } from "@/lib/api/auth";
+import { updateProfile, changePassword, uploadAvatar } from "@/lib/api/auth";
 import { getMySessions } from "@/lib/api/sessions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/profil")({
 
 function ProfilPage() {
   const { user, setUser } = useAuth();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [username, setUsername] = useState(user?.username || "");
   const [nom, setNom] = useState(user?.nom || "");
   const [prenom, setPrenom] = useState(user?.prenom || "");
@@ -69,13 +70,43 @@ function ProfilPage() {
 
   const roleLabel = user?.role === "admin" ? "Administrateur" : user?.role === "formateur" ? "Formateur" : "Participant";
 
+  const avatarMutation = useMutation({
+    mutationFn: (file: File) => uploadAvatar(file),
+    onSuccess: (data) => {
+      setUser({ ...user!, avatarUrl: data.avatarUrl });
+    },
+    onError: (err: any) => {
+      setProfileErrors({ form: err.message || "Erreur lors du téléchargement" });
+    },
+  });
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) avatarMutation.mutate(file);
+  };
+
   return (
     <ProtectedRoute>
     <PageShell>
       <div className="mx-auto max-w-3xl px-6 py-16">
         <div className="flex items-center gap-4">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-2xl font-display text-primary-foreground">
-            {user?.username?.[0]?.toUpperCase() || "?"}
+          <div className="relative">
+            <div className="grid h-20 w-20 place-items-center overflow-hidden rounded-full bg-primary text-3xl font-display text-primary-foreground">
+              {user?.avatarUrl ? (
+                <img src={`http://localhost:3001${user.avatarUrl}`} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                user?.username?.[0]?.toUpperCase() || "?"
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
+              disabled={avatarMutation.isPending}
+            >
+              {avatarMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
+            </button>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           </div>
           <div>
             <h1 className="font-display text-4xl">Mon profil</h1>

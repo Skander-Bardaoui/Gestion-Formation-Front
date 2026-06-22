@@ -93,7 +93,7 @@ function CataloguePage() {
                   <h3 className="mt-3 font-display text-2xl leading-tight">{f.titre}</h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{f.description}</p>
                   <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                    <span className="font-display text-xl">{f.tarif ? `${f.tarif} €` : "Sur devis"}</span>
+                    <span className="font-display text-xl">{f.tarif ? `${f.tarif} DT` : "Sur devis"}</span>
                     <span className="text-sm text-muted-foreground">Voir →</span>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ export type Participant = {
   nom: string;
   prenom: string;
   telephone: string | null;
+  avatarUrl?: string;
 };
 
 export async function getParticipants(): Promise<Participant[]> {

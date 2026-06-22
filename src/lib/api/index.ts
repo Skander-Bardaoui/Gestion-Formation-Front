@@ -9,3 +9,4 @@ export * from './presences';
 export * from './certificates';
 export * from './notifications';
 export * from './evaluations';
+export * from './inscriptions';

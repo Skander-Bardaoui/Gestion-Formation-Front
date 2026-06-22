@@ -146,8 +146,12 @@ function AdminFormateurs() {
           {formateurs?.map((t: Formateur) => (
             <div key={t.id} className="rounded-xl border border-border bg-card p-5">
               <div className="flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">
-                  {t.prenom?.[0]}{t.nom?.[0]}
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground overflow-hidden">
+                  {t.avatarUrl ? (
+                    <img src={`http://localhost:3001${t.avatarUrl}`} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <>{t.prenom?.[0]}{t.nom?.[0]}</>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-display text-lg">{t.prenom} {t.nom}</h3>

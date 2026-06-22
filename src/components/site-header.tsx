@@ -44,21 +44,23 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          {!isLoading && isAuthenticated && user?.role === "formateur" && (
-            <Link
-              to="/formateur/dashboard"
-              className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
-            >
-              Mes sessions
-            </Link>
-          )}
-          {!isLoading && isAuthenticated && user?.role === "participant" && (
-            <Link
-              to="/mes-formations"
-              className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
-            >
-              Mes formations
-            </Link>
+          {!isLoading && isAuthenticated && user?.role !== "admin" && (
+            <>
+              <Link
+                to="/mes-formations"
+                className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+              >
+                Mes formations
+              </Link>
+              {user?.role === "formateur" && (
+                <Link
+                  to="/formateur/dashboard"
+                  className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                >
+                  Mes sessions
+                </Link>
+              )}
+            </>
           )}
         </nav>
         <div className="flex items-center gap-2">
@@ -85,8 +87,14 @@ export function SiteHeader() {
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="rounded-md border border-border p-2 text-foreground transition-colors hover:bg-secondary">
-                    <Settings className="h-4 w-4" />
+                  <button className="overflow-hidden rounded-full border-2 border-border text-foreground transition-colors hover:border-primary h-9 w-9">
+                    {user?.avatarUrl ? (
+                      <img src={`http://localhost:3001${user.avatarUrl}`} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center bg-primary/10 text-sm font-medium text-primary">
+                        {user?.username?.[0]?.toUpperCase() || "?"}
+                      </div>
+                    )}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

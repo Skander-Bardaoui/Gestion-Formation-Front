@@ -154,8 +154,12 @@ function AdminParticipants() {
                 <tr key={p.id} className="border-t border-border hover:bg-secondary/40">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                        {p.prenom?.[0]}{p.nom?.[0]}
+                      <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary overflow-hidden">
+                        {p.avatarUrl ? (
+                          <img src={`http://localhost:3001${p.avatarUrl}`} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <>{p.prenom?.[0]}{p.nom?.[0]}</>
+                        )}
                       </div>
                       <p className="font-medium">{p.prenom} {p.nom}</p>
                     </div>

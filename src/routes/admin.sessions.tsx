@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Loader2, Pencil, Trash2, ChevronDown, ChevronUp, Search, FileText } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ChevronDown, ChevronUp, Search, FileText, Award, CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { getFormations } from "@/lib/api/formations";
 import { getEmployes } from "@/lib/api/employes";
 import { getFormateurs } from "@/lib/api/formateurs";
 import { getParticipants } from "@/lib/api/users";
+import { generateSessionCertificates } from "@/lib/api/certificates";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,7 +61,7 @@ async function downloadPresenceList(sessionId: string, titre?: string) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-const emptyForm = { dateDebut: "", dateFin: "", lieu: "", formationId: "", participantIds: [] as string[], employeIds: [] as string[], formateurIds: [] as string[] };
+const emptyForm = { dateDebut: "", dateFin: "", lieu: "", formationId: "", capaciteMax: "" as string | number, participantIds: [] as string[], employeIds: [] as string[], formateurIds: [] as string[] };
 
 function AdminSessions() {
   const queryClient = useQueryClient();
@@ -89,6 +90,7 @@ function AdminSessions() {
     mutationFn: () => {
       const payload = {
         ...form,
+        capaciteMax: form.capaciteMax === "" ? undefined : Number(form.capaciteMax),
         participantIds: form.participantIds.length ? form.participantIds : undefined,
         employeIds: form.employeIds.length ? form.employeIds : undefined,
         formateurIds: form.formateurIds.length ? form.formateurIds : undefined,
@@ -118,6 +120,27 @@ function AdminSessions() {
     },
   });
 
+  const certMutation = useMutation({
+    mutationFn: (sessionId: string) => generateSessionCertificates(sessionId),
+    onSuccess: (data: any) => {
+      toast.success(`${data.length} certificat(s) généré(s) avec succès`);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erreur lors de la génération des certificats");
+    },
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: (sessionId: string) => updateSession(sessionId, { isCompleted: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      toast.success("Session marquée comme terminée");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erreur");
+    },
+  });
+
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
@@ -131,6 +154,7 @@ function AdminSessions() {
       dateFin: s.dateFin ? new Date(s.dateFin).toISOString().slice(0, 16) : "",
       lieu: s.lieu || "",
       formationId: s.formation?.id || "",
+      capaciteMax: s.capaciteMax ?? "",
       participantIds: s.participants?.map((p: any) => p.id) || [],
       employeIds: s.employes?.map((e: any) => e.id) || [],
       formateurIds: s.formateurs?.map((f: any) => f.id) || [],
@@ -180,6 +204,7 @@ function AdminSessions() {
                 {formErrors.dateFin && <p className="mt-1 text-xs text-destructive">{formErrors.dateFin}</p>}</div>
               </div>
               <div><Label>Lieu</Label><Input placeholder="ex : Paris 11e — Salle 3B" value={form.lieu} onChange={(e) => setForm({ ...form, lieu: e.target.value })} /></div>
+              <div><Label>Capacité max</Label><Input type="number" min="1" placeholder="Nombre de places (laisser vide = illimité)" value={form.capaciteMax} onChange={(e) => setForm({ ...form, capaciteMax: e.target.value })} /></div>
               {showSourceToggle && (
                 <div>
                   <Label>Type de participants</Label>
@@ -284,9 +309,16 @@ function AdminSessions() {
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {s.isCompleted ? (
+                      <span className="hidden md:flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700"><CheckCircle className="h-3 w-3" /> Terminée</span>
+                    ) : s.isCancelled ? (
+                      <span className="hidden md:flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700"><XCircle className="h-3 w-3" /> Annulée</span>
+                    ) : (
+                      <span className="hidden md:flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">Planifiée</span>
+                    )}
                     <div className="hidden text-right md:block">
                       <p className="text-xs uppercase text-muted-foreground">Participants</p>
-                      <p className="text-sm font-medium">{s.participants?.length || 0}</p>
+                      <p className="text-sm font-medium">{(s.participants?.length || 0) + (s.employes?.length || 0)}</p>
                     </div>
                     <button onClick={() => setExpandedId(expandedId === s.id ? null : s.id)} className="rounded-md border border-border bg-background p-2 text-muted-foreground hover:bg-secondary hover:text-foreground">
                       {expandedId === s.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -312,6 +344,30 @@ function AdminSessions() {
                         <p className="text-sm text-muted-foreground">Aucun</p>
                       )}
                     </div>
+                    {!s.isCompleted && !s.isCancelled && (
+                      <div className="border-t border-border pt-3">
+                        <button
+                          onClick={() => completeMutation.mutate(s.id)}
+                          disabled={completeMutation.isPending}
+                          className="flex w-full items-center justify-center gap-2 rounded-md border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
+                        >
+                          {completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                          {completeMutation.isPending ? "Mise à jour..." : "Marquer comme terminée"}
+                        </button>
+                      </div>
+                    )}
+                    {s.isCompleted && (
+                      <div className="border-t border-border pt-3">
+                        <button
+                          onClick={() => certMutation.mutate(s.id)}
+                          disabled={certMutation.isPending}
+                          className="flex w-full items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                        >
+                          {certMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+                          {certMutation.isPending ? "Génération en cours..." : "Générer les certificats"}
+                        </button>
+                      </div>
+                    )}
                     <div>
                       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Employés</p>
                       {s.employes?.length > 0 ? (

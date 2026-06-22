@@ -1,0 +1,131 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Wallet, CheckCircle, XCircle, Calendar, User, Euro } from "lucide-react";
+import { toast } from "sonner";
+import { AdminShell } from "@/components/admin-shell";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { getPendingInscriptions, confirmPayment, rejectInscription, type Inscription } from "@/lib/api/inscriptions";
+
+export const Route = createFileRoute("/admin/paiements")({
+  component: AdminPaiementsPage,
+});
+
+function AdminPaiementsPage() {
+  const queryClient = useQueryClient();
+
+  const { data: inscriptions, isLoading } = useQuery({
+    queryKey: ["pending-inscriptions"],
+    queryFn: getPendingInscriptions,
+  });
+
+  const confirmMutation = useMutation({
+    mutationFn: (id: string) => confirmPayment(id),
+    onSuccess: () => {
+      toast.success("Paiement confirmé ! L'inscription a été validée.");
+      queryClient.invalidateQueries({ queryKey: ["pending-inscriptions"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erreur lors de la confirmation");
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: (id: string) => rejectInscription(id),
+    onSuccess: () => {
+      toast.success("Inscription refusée.");
+      queryClient.invalidateQueries({ queryKey: ["pending-inscriptions"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erreur lors du refus");
+    },
+  });
+
+  return (
+    <AdminShell
+      title="Paiements en attente"
+      subtitle="Gérez les inscriptions en attente de paiement en espèces"
+    >
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : inscriptions && inscriptions.length > 0 ? (
+        <div className="space-y-4">
+          {inscriptions.map((ins: Inscription) => {
+            const s = ins.session;
+            const u = ins.user;
+            const d = new Date(s.dateDebut);
+            return (
+              <div key={ins.id} className="rounded-xl border border-border bg-card p-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-5 w-5 text-amber-500" />
+                      <h3 className="font-display text-lg">{s.formation?.titre || "Formation"}</h3>
+                      <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
+                        En attente
+                      </Badge>
+                    </div>
+                    <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
+                      <span className="flex items-center gap-1.5">
+                        <User className="h-4 w-4" />
+                        {u.prenom} {u.nom}
+                        <span className="rounded bg-secondary px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{u.role}</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4" />
+                        {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Euro className="h-4 w-4" />
+                        {ins.montant} DT — Espèces
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {u.email} · Inscrit le {new Date(ins.dateInscription).toLocaleDateString("fr-FR")}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={confirmMutation.isPending || rejectMutation.isPending}
+                      onClick={() => confirmMutation.mutate(ins.id)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Paiement reçu
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-destructive hover:text-destructive"
+                      disabled={confirmMutation.isPending || rejectMutation.isPending}
+                      onClick={() => {
+                        if (window.confirm("Refuser cette inscription ?")) {
+                          rejectMutation.mutate(ins.id);
+                        }
+                      }}
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Refuser
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-border bg-card p-16 text-center">
+          <Wallet className="mx-auto h-10 w-10 text-muted-foreground" />
+          <p className="mt-4 text-lg font-medium">Aucun paiement en attente</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Toutes les inscriptions ont été traitées.
+          </p>
+        </div>
+      )}
+    </AdminShell>
+  );
+}

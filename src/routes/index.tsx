@@ -177,7 +177,16 @@ function Index() {
                 ? { to: "/formations/$id" as const, params: { id: f.id }, className: "group flex flex-col rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl" }
                 : { className: "flex flex-col rounded-xl border border-border bg-card p-6 opacity-80" };
               return (
-                <Wrapper key={f.id} {...(wrapperProps as any)}>
+                  <Wrapper key={f.id} {...(wrapperProps as any)}>
+                  {f.imageUrl ? (
+                    <div className="overflow-hidden rounded-lg aspect-video mb-4">
+                      <img src={`http://localhost:3001${f.imageUrl}`} alt={f.titre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                    </div>
+                  ) : (
+                    <div className="overflow-hidden rounded-lg aspect-video mb-4 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                      <span className="font-display text-5xl text-muted-foreground/20">{f.titre?.[0]}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-xs">
                     <span className="rounded-md bg-secondary px-2 py-1 font-medium text-secondary-foreground">{f.categorie || "Général"}</span>
                     <span className="text-muted-foreground">{f.type}</span>
@@ -186,7 +195,7 @@ function Index() {
                   <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{f.description}</p>
                   <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm">
                     <span className="text-muted-foreground">{f.dureeEnJours ? `${f.dureeEnJours}j` : "—"}</span>
-                    <span className="font-display text-xl text-primary">{f.tarif ? `${f.tarif} €` : "Sur devis"}</span>
+                    <span className="font-display text-xl text-primary">{f.tarif ? `${f.tarif} DT` : "Sur devis"}</span>
                   </div>
                 </Wrapper>
               );

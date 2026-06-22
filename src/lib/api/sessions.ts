@@ -13,6 +13,7 @@ export type Session = {
   bonCommandeUrl: string;
   contratUrl: string;
   nombreParticipants: number;
+  capaciteMax: number | null;
   isCompleted: boolean;
   isCancelled: boolean;
   notes: string;
@@ -48,6 +49,7 @@ export async function enrollInSession(sessionId: string): Promise<Session> {
   return api.post<Session>(`/sessions/${sessionId}/enroll`);
 }
 
-export async function getMySessions(): Promise<Session[]> {
-  return api.get<Session[]>('/sessions/mine');
+export async function getMySessions(type?: string): Promise<Session[]> {
+  const path = type ? `/sessions/mine?type=${type}` : '/sessions/mine';
+  return api.get<Session[]>(path);
 }

@@ -12,9 +12,9 @@ export type Certificate = {
   noteObtenue: number;
   isValidated: boolean;
   validatedBy: string;
-  employe: any;
-  formation: any;
-  session: any;
+  user: { id: string; prenom: string; nom: string };
+  formation: { id: string; titre: string };
+  session: { id: string; dateDebut: string; dateFin: string };
 };
 
 export async function getCertificates(): Promise<Certificate[]> {
@@ -23,4 +23,17 @@ export async function getCertificates(): Promise<Certificate[]> {
 
 export async function getCertificate(id: string): Promise<Certificate> {
   return api.get<Certificate>(`/certificates/${id}`);
+}
+
+export async function getMyCertificates(): Promise<Certificate[]> {
+  return api.get<Certificate[]>('/certificates/mine');
+}
+
+export async function generateSessionCertificates(sessionId: string): Promise<Certificate[]> {
+  return api.post<Certificate[]>(`/certificates/generate/${sessionId}`, {});
+}
+
+export function getCertificateDownloadUrl(certId: string): string {
+  const token = localStorage.getItem('access_token');
+  return `http://localhost:3001/api/certificates/${certId}/download?token=${token}`;
 }

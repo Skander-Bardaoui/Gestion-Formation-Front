@@ -13,6 +13,7 @@ export type Formateur = {
   cvUrl: string;
   noteGlobale: number;
   role: string;
+  avatarUrl?: string;
   sessionsAsFormateur: any[];
   evaluationsRecues: any[];
   createdAt: string;

@@ -179,7 +179,7 @@ function AdminFormations() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div><Label className="text-xs">Tarif (€)</Label><Input className="h-8" type="number" placeholder="ex : 1500" min={0} value={form.tarif} onChange={(e) => setForm({ ...form, tarif: Number(e.target.value) })} /></div>
+                  <div><Label className="text-xs">Tarif (DT)</Label><Input className="h-8" type="number" placeholder="ex : 1500" min={0} value={form.tarif} onChange={(e) => setForm({ ...form, tarif: Number(e.target.value) })} /></div>
                   <div><Label className="text-xs">Durée (jours)</Label><Input className="h-8" type="number" placeholder="ex : 3" min={1} max={365} value={form.dureeEnJours} onChange={(e) => setForm({ ...form, dureeEnJours: Number(e.target.value) })} /></div>
                 </div>
                 <div><Label className="text-xs">Programme</Label><Textarea className="min-h-[56px]" rows={2} placeholder="Modules, chapitres, compétences visées..." value={form.programme} onChange={(e) => setForm({ ...form, programme: e.target.value })} /></div>
@@ -306,7 +306,7 @@ function AdminFormations() {
                   <td className="px-4 py-3 text-muted-foreground">{f.categorie || "—"}</td>
                   <td className="px-4 py-3"><span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary">{f.type}</span></td>
                   <td className="px-4 py-3 text-muted-foreground">{f.dureeEnJours ? `${f.dureeEnJours}j` : "—"}</td>
-                  <td className="px-4 py-3">{f.tarif ? `${f.tarif} €` : "—"}</td>
+                  <td className="px-4 py-3">{f.tarif ? `${f.tarif} DT` : "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{f.sessions?.length || 0}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">

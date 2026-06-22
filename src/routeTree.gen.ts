@@ -26,6 +26,7 @@ import { Route as EvaluationSessionIdRouteImport } from './routes/evaluation.$se
 import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
 import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
+import { Route as AdminPaiementsRouteImport } from './routes/admin.paiements'
 import { Route as AdminFormationsRouteImport } from './routes/admin.formations'
 import { Route as AdminFormateursRouteImport } from './routes/admin.formateurs'
 import { Route as AdminEvaluationsRouteImport } from './routes/admin.evaluations'
@@ -118,6 +119,11 @@ const AdminParametresRoute = AdminParametresRouteImport.update({
   path: '/parametres',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPaiementsRoute = AdminPaiementsRouteImport.update({
+  id: '/paiements',
+  path: '/paiements',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFormationsRoute = AdminFormationsRouteImport.update({
   id: '/formations',
   path: '/formations',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
     | '/admin/sessions'
@@ -438,6 +450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminParametresRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/paiements': {
+      id: '/admin/paiements'
+      path: '/paiements'
+      fullPath: '/admin/paiements'
+      preLoaderRoute: typeof AdminPaiementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/formations': {
       id: '/admin/formations'
       path: '/formations'
@@ -490,6 +509,7 @@ interface AdminRouteChildren {
   AdminEvaluationsRoute: typeof AdminEvaluationsRoute
   AdminFormateursRoute: typeof AdminFormateursRoute
   AdminFormationsRoute: typeof AdminFormationsRoute
+  AdminPaiementsRoute: typeof AdminPaiementsRoute
   AdminParametresRoute: typeof AdminParametresRoute
   AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminSessionsRoute: typeof AdminSessionsRoute
@@ -503,6 +523,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEvaluationsRoute: AdminEvaluationsRoute,
   AdminFormateursRoute: AdminFormateursRoute,
   AdminFormationsRoute: AdminFormationsRoute,
+  AdminPaiementsRoute: AdminPaiementsRoute,
   AdminParametresRoute: AdminParametresRoute,
   AdminParticipantsRoute: AdminParticipantsRoute,
   AdminSessionsRoute: AdminSessionsRoute,
