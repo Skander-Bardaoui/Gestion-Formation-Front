@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "../contexts/auth-context";
 import { Toaster } from "../components/ui/sonner";
+import { ChatBot } from "../components/chatbot";
 
 function NotFoundComponent() {
   return (
@@ -128,6 +129,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
+        <ChatBot />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

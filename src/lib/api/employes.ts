@@ -11,6 +11,8 @@ export type Employe = {
   entrepriseText: string | null;
   dateEmbauche: string | null;
   identifiant: string;
+  userActive?: boolean;
+  userId?: string;
   createdAt: string;
   updatedAt: string;
 };

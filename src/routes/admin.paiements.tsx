@@ -1,10 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Wallet, CheckCircle, XCircle, Calendar, User, Euro } from "lucide-react";
+import { useState } from "react";
+import { Loader2, Wallet, CheckCircle, XCircle, Calendar, User, Euro, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { getPendingInscriptions, confirmPayment, rejectInscription, type Inscription } from "@/lib/api/inscriptions";
 
 export const Route = createFileRoute("/admin/paiements")({
@@ -13,6 +22,7 @@ export const Route = createFileRoute("/admin/paiements")({
 
 function AdminPaiementsPage() {
   const queryClient = useQueryClient();
+  const [refuseDialogId, setRefuseDialogId] = useState<string | null>(null);
 
   const { data: inscriptions, isLoading } = useQuery({
     queryKey: ["pending-inscriptions"],
@@ -34,6 +44,7 @@ function AdminPaiementsPage() {
     mutationFn: (id: string) => rejectInscription(id),
     onSuccess: () => {
       toast.success("Inscription refusée.");
+      setRefuseDialogId(null);
       queryClient.invalidateQueries({ queryKey: ["pending-inscriptions"] });
     },
     onError: (err: any) => {
@@ -102,11 +113,7 @@ function AdminPaiementsPage() {
                       size="sm"
                       className="gap-1.5 text-destructive hover:text-destructive"
                       disabled={confirmMutation.isPending || rejectMutation.isPending}
-                      onClick={() => {
-                        if (window.confirm("Refuser cette inscription ?")) {
-                          rejectMutation.mutate(ins.id);
-                        }
-                      }}
+                      onClick={() => setRefuseDialogId(ins.id)}
                     >
                       <XCircle className="h-4 w-4" />
                       Refuser
@@ -126,6 +133,36 @@ function AdminPaiementsPage() {
           </p>
         </div>
       )}
+
+      <Dialog open={refuseDialogId !== null} onOpenChange={() => setRefuseDialogId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Refuser l'inscription
+            </DialogTitle>
+            <DialogDescription className="space-y-3 pt-3">
+              <p>Êtes-vous sûr de vouloir refuser cette inscription ?</p>
+              <p className="text-xs text-muted-foreground">
+                L'utilisateur verra le statut "Refusé" dans ses formations et
+                pourra se réinscrire ultérieurement.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRefuseDialogId(null)}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={rejectMutation.isPending}
+              onClick={() => refuseDialogId && rejectMutation.mutate(refuseDialogId)}
+            >
+              {rejectMutation.isPending ? "..." : "Confirmer le refus"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }

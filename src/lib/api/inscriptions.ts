@@ -5,7 +5,7 @@ export type Inscription = {
   userId: string;
   sessionId: string;
   montant: number;
-  statutPaiement: 'en_attente' | 'paye';
+  statutPaiement: 'en_attente' | 'paye' | 'refuse';
   methodePaiement: string;
   datePaiement: string | null;
   dateInscription: string;

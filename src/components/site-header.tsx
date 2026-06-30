@@ -53,11 +53,27 @@ export function SiteHeader() {
                 Mes formations
               </Link>
               {user?.role === "formateur" && (
+                <>
+                  <Link
+                    to="/formateur/dashboard"
+                    className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    Mes sessions
+                  </Link>
+                  <Link
+                    to="/formateur/calendrier"
+                    className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    Calendrier
+                  </Link>
+                </>
+              )}
+              {(user?.role === "participant" || user?.role === "employe") && (
                 <Link
-                  to="/formateur/dashboard"
+                  to="/participant/calendrier"
                   className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
                 >
-                  Mes sessions
+                  Calendrier
                 </Link>
               )}
             </>

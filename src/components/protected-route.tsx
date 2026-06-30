@@ -3,9 +3,15 @@ import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "../contexts/auth-context";
 import { Loader2 } from "lucide-react";
 
-export function ProtectedRoute({ children, requiredRole }: { children: ReactNode; requiredRole?: string }) {
+export function ProtectedRoute({ children, requiredRole }: { children: ReactNode; requiredRole?: string | string[] }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
+
+  const hasRole = requiredRole
+    ? Array.isArray(requiredRole)
+      ? requiredRole.includes(user?.role || '')
+      : user?.role === requiredRole
+    : true;
 
   useEffect(() => {
     if (isLoading) return;
@@ -13,10 +19,10 @@ export function ProtectedRoute({ children, requiredRole }: { children: ReactNode
       router.navigate({ to: "/connexion" });
       return;
     }
-    if (requiredRole && user?.role !== requiredRole) {
+    if (!hasRole) {
       router.navigate({ to: "/" });
     }
-  }, [isAuthenticated, isLoading, user, requiredRole, router]);
+  }, [isAuthenticated, isLoading, user, requiredRole, hasRole, router]);
 
   if (isLoading) {
     return (
@@ -27,7 +33,7 @@ export function ProtectedRoute({ children, requiredRole }: { children: ReactNode
   }
 
   if (!isAuthenticated) return null;
-  if (requiredRole && user?.role !== requiredRole) return null;
+  if (!hasRole) return null;
 
   return <>{children}</>;
 }

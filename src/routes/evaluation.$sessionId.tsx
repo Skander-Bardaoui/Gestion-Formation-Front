@@ -21,17 +21,17 @@ export const Route = createFileRoute("/evaluation/$sessionId")({
 function StarInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <div>
-      <p className="mb-1.5 text-sm font-medium">{label}</p>
+      <p className="mb-2 text-sm font-medium">{label}</p>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
             onClick={() => onChange(star)}
-            className="rounded p-0.5 transition-colors hover:scale-110"
+            className="rounded-md p-1 transition-all hover:scale-110"
           >
             <Star
-              className={`h-6 w-6 ${star <= value ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"}`}
+              className={`h-6 w-6 ${star <= value ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/20"}`}
             />
           </button>
         ))}
@@ -118,62 +118,74 @@ function EvaluerPage() {
   return (
     <ProtectedRoute>
       <PageShell>
-        <div className="mx-auto max-w-2xl px-6 py-16">
-          <Link to="/mes-formations" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <div className="mx-auto max-w-2xl px-6 py-12">
+          <Link to="/mes-formations" className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Retour à mes formations
           </Link>
 
-          <h1 className="font-display text-3xl">Évaluation de la formation</h1>
-          <p className="mt-1 text-muted-foreground">
-            {session.formation?.titre} — {new Date(session.dateDebut).toLocaleDateString("fr-FR")}
-          </p>
+          <div className="mb-8">
+            <h1 className="font-display text-3xl">Évaluation de la formation</h1>
+            <p className="mt-1.5 text-muted-foreground">
+              {session.formation?.titre} — {new Date(session.dateDebut).toLocaleDateString("fr-FR")}
+            </p>
+          </div>
 
-          <div className="mt-8 space-y-8">
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="mb-4 font-display text-xl">📚 Évaluation de la formation</h2>
-              <div className="space-y-4">
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="mb-5 flex items-center gap-2 font-display text-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-base">📚</span>
+                Formation
+              </h2>
+              <div className="space-y-5">
                 <StarInput label="Qualité du contenu" value={noteContenu} onChange={setNoteContenu} />
+                <div className="border-t border-border/50" />
                 <StarInput label="Qualité des supports" value={noteSupports} onChange={setNoteSupports} />
+                <div className="border-t border-border/50" />
                 <StarInput label="Note générale" value={note} onChange={setNote} />
               </div>
             </section>
 
             {formateur && (
-              <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 font-display text-xl">👤 Évaluation du formateur</h2>
-                <p className="mb-3 text-sm text-muted-foreground">
-                  {formateur.prenom} {formateur.nom}
-                </p>
+              <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <h2 className="mb-5 flex items-center gap-2 font-display text-lg">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-base">👤</span>
+                  Formateur
+                  <span className="ml-auto text-sm font-normal text-muted-foreground">{formateur.prenom} {formateur.nom}</span>
+                </h2>
                 <StarInput label="Qualité pédagogique" value={notePedagogie} onChange={setNotePedagogie} />
               </section>
             )}
 
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="mb-4 font-display text-xl">🏢 Évaluation du centre de formation</h2>
+            <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="mb-5 flex items-center gap-2 font-display text-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-base">🏢</span>
+                Organisation
+              </h2>
               <StarInput label="Organisation" value={noteOrganisation} onChange={setNoteOrganisation} />
             </section>
 
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="mb-4 font-display text-xl">💬 Commentaire</h2>
+            <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="mb-5 flex items-center gap-2 font-display text-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-base">💬</span>
+                Commentaire
+              </h2>
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="commentaire">Votre avis (optionnel)</Label>
-                  <Textarea
-                    id="commentaire"
-                    placeholder="Partagez votre expérience…"
-                    value={commentaire}
-                    onChange={(e) => setCommentaire(e.target.value)}
-                    className="mt-1.5"
-                    rows={4}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
+                <Textarea
+                  id="commentaire"
+                  placeholder="Partagez votre expérience…"
+                  value={commentaire}
+                  onChange={(e) => setCommentaire(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+                <div className="flex items-center gap-3">
                   <Checkbox
                     id="recommande"
                     checked={recommande}
                     onCheckedChange={(v) => setRecommande(v === true)}
+                    className="h-5 w-5"
                   />
-                  <Label htmlFor="recommande" className="cursor-pointer">
+                  <Label htmlFor="recommande" className="cursor-pointer text-sm font-medium">
                     Je recommanderais cette formation
                   </Label>
                 </div>
@@ -183,8 +195,7 @@ function EvaluerPage() {
             <Button
               onClick={() => mutation.mutate()}
               disabled={note === 0 || mutation.isPending}
-              className="w-full"
-              size="lg"
+              className="w-full h-12 text-base"
             >
               {mutation.isPending ? "Envoi en cours…" : "Envoyer l'évaluation"}
             </Button>

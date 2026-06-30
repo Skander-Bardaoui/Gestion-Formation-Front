@@ -38,6 +38,9 @@ function MesFormationsPage() {
   const pendingInscriptions = (inscriptions || []).filter(
     (i) => i.statutPaiement === "en_attente"
   );
+  const refusedInscriptions = (inscriptions || []).filter(
+    (i) => i.statutPaiement === "refuse"
+  );
 
   return (
     <ProtectedRoute>
@@ -83,6 +86,46 @@ function MesFormationsPage() {
                           </Badge>
                           <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
                             {ins.montant} DT à payer en espèces
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {refusedInscriptions.length > 0 && (
+            <div className="mt-8">
+              <h2 className="font-display text-xl text-red-600 dark:text-red-400 mb-3">
+                Inscriptions refusées
+              </h2>
+              <div className="space-y-3">
+                {refusedInscriptions.map((ins) => {
+                  const s = ins.session;
+                  const d = new Date(s.dateDebut);
+                  return (
+                    <div key={ins.id} className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-display text-xl">{s.formation?.titre || "Formation"}</h3>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="h-4 w-4 text-red-600 dark:text-red-400" />
+                              {d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                            </span>
+                            {s.lieu && <span>📍 {s.lieu}</span>}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <Badge variant="outline" className="border-red-400 text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/50">
+                            Refusé
+                          </Badge>
+                          <span className="text-sm font-semibold text-red-700 dark:text-red-300">
+                            {ins.montant} DT
                           </span>
                         </div>
                       </div>

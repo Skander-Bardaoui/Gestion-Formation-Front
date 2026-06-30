@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Plus, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Download, Plus, Loader2, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
-import { getParticipants, createParticipant, updateParticipant, deleteParticipant, type Participant } from "@/lib/api/users";
+import { getParticipants, createParticipant, updateParticipant, deleteParticipant, toggleUserActive, type Participant } from "@/lib/api/users";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -72,6 +72,15 @@ function AdminParticipants() {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
       setDeleteId(null);
     },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => toggleUserActive(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participants"] });
+      toast.success("Statut mis à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const openCreate = () => {
@@ -173,6 +182,14 @@ function AdminParticipants() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => toggleMutation.mutate({ id: p.id, isActive: !p.isActive })}
+                        disabled={toggleMutation.isPending}
+                        className={`rounded p-1.5 ${p.isActive ? "text-green-600 hover:bg-green-100" : "text-muted-foreground hover:bg-secondary"}`}
+                        title={p.isActive ? "Désactiver" : "Activer"}
+                      >
+                        {p.isActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                      </button>
                       <button onClick={() => openEdit(p)} className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                       <button onClick={() => setDeleteId(p.id)} className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>

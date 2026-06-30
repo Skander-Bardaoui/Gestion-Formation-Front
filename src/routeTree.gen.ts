@@ -20,8 +20,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ParticipantCalendrierRouteImport } from './routes/participant.calendrier'
 import { Route as FormationsIdRouteImport } from './routes/formations.$id'
 import { Route as FormateurDashboardRouteImport } from './routes/formateur.dashboard'
+import { Route as FormateurCalendrierRouteImport } from './routes/formateur.calendrier'
 import { Route as EvaluationSessionIdRouteImport } from './routes/evaluation.$sessionId'
 import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
 import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
@@ -89,6 +91,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ParticipantCalendrierRoute = ParticipantCalendrierRouteImport.update({
+  id: '/participant/calendrier',
+  path: '/participant/calendrier',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormationsIdRoute = FormationsIdRouteImport.update({
   id: '/formations/$id',
   path: '/formations/$id',
@@ -97,6 +104,11 @@ const FormationsIdRoute = FormationsIdRouteImport.update({
 const FormateurDashboardRoute = FormateurDashboardRouteImport.update({
   id: '/formateur/dashboard',
   path: '/formateur/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormateurCalendrierRoute = FormateurCalendrierRouteImport.update({
+  id: '/formateur/calendrier',
+  path: '/formateur/calendrier',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvaluationSessionIdRoute = EvaluationSessionIdRouteImport.update({
@@ -177,8 +189,10 @@ export interface FileRoutesByFullPath {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/calendrier': typeof FormateurCalendrierRoute
   '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
+  '/participant/calendrier': typeof ParticipantCalendrierRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -202,8 +216,10 @@ export interface FileRoutesByTo {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/calendrier': typeof FormateurCalendrierRoute
   '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
+  '/participant/calendrier': typeof ParticipantCalendrierRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -229,8 +245,10 @@ export interface FileRoutesById {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/sessions': typeof AdminSessionsRoute
   '/evaluation/$sessionId': typeof EvaluationSessionIdRoute
+  '/formateur/calendrier': typeof FormateurCalendrierRoute
   '/formateur/dashboard': typeof FormateurDashboardRoute
   '/formations/$id': typeof FormationsIdRoute
+  '/participant/calendrier': typeof ParticipantCalendrierRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -257,8 +275,10 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/sessions'
     | '/evaluation/$sessionId'
+    | '/formateur/calendrier'
     | '/formateur/dashboard'
     | '/formations/$id'
+    | '/participant/calendrier'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -282,8 +302,10 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/sessions'
     | '/evaluation/$sessionId'
+    | '/formateur/calendrier'
     | '/formateur/dashboard'
     | '/formations/$id'
+    | '/participant/calendrier'
     | '/admin'
   id:
     | '__root__'
@@ -308,8 +330,10 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/sessions'
     | '/evaluation/$sessionId'
+    | '/formateur/calendrier'
     | '/formateur/dashboard'
     | '/formations/$id'
+    | '/participant/calendrier'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -325,8 +349,10 @@ export interface RootRouteChildren {
   MesFormationsRoute: typeof MesFormationsRoute
   ProfilRoute: typeof ProfilRoute
   EvaluationSessionIdRoute: typeof EvaluationSessionIdRoute
+  FormateurCalendrierRoute: typeof FormateurCalendrierRoute
   FormateurDashboardRoute: typeof FormateurDashboardRoute
   FormationsIdRoute: typeof FormationsIdRoute
+  ParticipantCalendrierRoute: typeof ParticipantCalendrierRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -408,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/participant/calendrier': {
+      id: '/participant/calendrier'
+      path: '/participant/calendrier'
+      fullPath: '/participant/calendrier'
+      preLoaderRoute: typeof ParticipantCalendrierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/formations/$id': {
       id: '/formations/$id'
       path: '/formations/$id'
@@ -420,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/formateur/dashboard'
       fullPath: '/formateur/dashboard'
       preLoaderRoute: typeof FormateurDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/formateur/calendrier': {
+      id: '/formateur/calendrier'
+      path: '/formateur/calendrier'
+      fullPath: '/formateur/calendrier'
+      preLoaderRoute: typeof FormateurCalendrierRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evaluation/$sessionId': {
@@ -544,8 +584,10 @@ const rootRouteChildren: RootRouteChildren = {
   MesFormationsRoute: MesFormationsRoute,
   ProfilRoute: ProfilRoute,
   EvaluationSessionIdRoute: EvaluationSessionIdRoute,
+  FormateurCalendrierRoute: FormateurCalendrierRoute,
   FormateurDashboardRoute: FormateurDashboardRoute,
   FormationsIdRoute: FormationsIdRoute,
+  ParticipantCalendrierRoute: ParticipantCalendrierRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

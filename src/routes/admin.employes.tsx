@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { getEmployes, createEmploye, updateEmploye, deleteEmploye, type Employe } from "@/lib/api/employes";
+import { toggleUserActive } from "@/lib/api/users";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -72,6 +73,15 @@ function AdminEmployes() {
       queryClient.invalidateQueries({ queryKey: ["employes"] });
       setDeleteId(null);
     },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => toggleUserActive(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
+      toast.success("Statut mis à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const openCreate = () => {
@@ -151,12 +161,13 @@ function AdminEmployes() {
                 <th className="px-4 py-3">Poste</th>
                 <th className="px-4 py-3">Département</th>
                 <th className="px-4 py-3">Téléphone</th>
+                <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {employes?.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Aucun employé pour le moment</td></tr>
+                <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">Aucun employé pour le moment</td></tr>
               )}
               {employes?.map((p: Employe) => (
                 <tr key={p.id} className="border-t border-border hover:bg-secondary/40">
@@ -175,8 +186,23 @@ function AdminEmployes() {
                   <td className="px-4 py-3 text-muted-foreground">{p.poste || "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{p.departement || "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{p.telephone || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${p.userActive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
+                      {p.userActive ? "Actif" : "Inactif"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {p.userId && (
+                        <button
+                          onClick={() => toggleMutation.mutate({ id: p.userId!, isActive: !p.userActive })}
+                          disabled={toggleMutation.isPending}
+                          className={`rounded p-1.5 ${p.userActive ? "text-green-600 hover:bg-green-100" : "text-muted-foreground hover:bg-secondary"}`}
+                          title={p.userActive ? "Désactiver" : "Activer"}
+                        >
+                          {p.userActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                        </button>
+                      )}
                       <button onClick={() => openEdit(p)} className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                       <button onClick={() => setDeleteId(p.id)} className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>

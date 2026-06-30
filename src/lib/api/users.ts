@@ -37,3 +37,7 @@ export async function updateParticipant(id: string, dto: Partial<CreateParticipa
 export async function deleteParticipant(id: string): Promise<void> {
   return api.delete(`/users/${id}`);
 }
+
+export async function toggleUserActive(id: string, isActive: boolean): Promise<Participant> {
+  return api.patch<Participant>(`/users/${id}`, { isActive });
+}

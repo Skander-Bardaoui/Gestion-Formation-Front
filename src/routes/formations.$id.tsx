@@ -66,7 +66,7 @@ function FormationPage() {
 
   const handleEnroll = (sessionId: string, montant: number) => {
     if (!user) { navigate({ to: "/connexion" }); return; }
-    if (user.role !== "participant" && user.role !== "formateur") { toast.error("Seuls les participants et formateurs peuvent s'inscrire."); return; }
+    if (user.role !== "participant" && user.role !== "employe" && user.role !== "formateur") { toast.error("Seuls les participants, employés et formateurs peuvent s'inscrire."); return; }
     setPaymentDialog({ sessionId, montant });
   };
 
