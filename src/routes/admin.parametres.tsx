@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Loader2, Save, Lock, User } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { Loader2, Save, Lock, User, Pen, Check } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { useAuth } from "@/contexts/auth-context";
 import { updateProfile, changePassword } from "@/lib/api/auth";
+import { saveSignature, getLatestSignature } from "@/lib/api/signatures";
+import { SignaturePad } from "@/components/signature-pad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +18,7 @@ export const Route = createFileRoute("/admin/parametres")({
 
 function AdminParametres() {
   const { user, setUser } = useAuth();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState(user?.username || "");
   const [nom, setNom] = useState(user?.nom || "");
   const [prenom, setPrenom] = useState(user?.prenom || "");
@@ -23,6 +27,11 @@ function AdminParametres() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const { data: existingSignature } = useQuery({
+    queryKey: ["my-signature"],
+    queryFn: getLatestSignature,
+  });
 
   useEffect(() => {
     if (user) {
@@ -130,6 +139,31 @@ function AdminParametres() {
               Mettre à jour
             </Button>
           </form>
+        </section>
+
+        <section className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <Pen className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-2xl">Signature électronique</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Votre signature sera intégrée automatiquement dans les conventions, contrats, certificats et feuilles d'émargement.
+          </p>
+          <div className="mt-6">
+            <SignaturePad
+              onSave={async (imageData, type) => {
+                try {
+                  await saveSignature(imageData, type);
+                  toast.success("Signature enregistrée");
+                  queryClient.invalidateQueries({ queryKey: ["my-signature"] });
+                } catch (err: any) {
+                  toast.error(err.message || "Erreur");
+                }
+              }}
+              savedSignature={existingSignature?.imageData || null}
+              label="Dessinez ou importez votre signature"
+            />
+          </div>
         </section>
       </div>
     </AdminShell>

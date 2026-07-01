@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Loader2, Pencil, Trash2, ChevronDown, ChevronUp, Search, FileText, Award, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ChevronDown, ChevronUp, Search, FileText, Award, CheckCircle, XCircle, FileSignature, UserCheck, Building2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { getEmployes } from "@/lib/api/employes";
 import { getFormateurs } from "@/lib/api/formateurs";
 import { getParticipants } from "@/lib/api/users";
 import { generateSessionCertificates } from "@/lib/api/certificates";
+import { generateConvention, generateContratFormateur, generateFeuilleEmargement } from "@/lib/api/signatures";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -124,10 +125,31 @@ function AdminSessions() {
     mutationFn: (sessionId: string) => generateSessionCertificates(sessionId),
     onSuccess: (data: any) => {
       toast.success(`${data.length} certificat(s) généré(s) avec succès`);
+      queryClient.invalidateQueries({ queryKey: ["documents-signes"] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Erreur lors de la génération des certificats");
     },
+  });
+
+  const conventionMutation = useMutation({
+    mutationFn: ({ sessionId, participantId }: { sessionId: string; participantId: string }) =>
+      generateConvention(sessionId, participantId),
+    onSuccess: () => { toast.success("Convention générée"); queryClient.invalidateQueries({ queryKey: ["documents-signes"] }); },
+    onError: (err: any) => toast.error(err.message || "Erreur"),
+  });
+
+  const contratMutation = useMutation({
+    mutationFn: ({ sessionId, formateurId }: { sessionId: string; formateurId: string }) =>
+      generateContratFormateur(sessionId, formateurId),
+    onSuccess: () => { toast.success("Contrat formateur généré"); queryClient.invalidateQueries({ queryKey: ["documents-signes"] }); },
+    onError: (err: any) => toast.error(err.message || "Erreur"),
+  });
+
+  const emargementMutation = useMutation({
+    mutationFn: (sessionId: string) => generateFeuilleEmargement(sessionId),
+    onSuccess: () => { toast.success("Feuille d'émargement générée"); queryClient.invalidateQueries({ queryKey: ["documents-signes"] }); },
+    onError: (err: any) => toast.error(err.message || "Erreur"),
   });
 
   const completeMutation = useMutation({
@@ -357,15 +379,61 @@ function AdminSessions() {
                       </div>
                     )}
                     {s.isCompleted && (
+                      <div className="border-t border-border pt-3 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => certMutation.mutate(s.id)}
+                            disabled={certMutation.isPending}
+                            className="flex items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                          >
+                            {certMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+                            {certMutation.isPending ? "Génération..." : "Certificats"}
+                          </button>
+                          <button
+                            onClick={() => emargementMutation.mutate(s.id)}
+                            disabled={emargementMutation.isPending}
+                            className="flex items-center justify-center gap-2 rounded-md border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                          >
+                            {emargementMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSignature className="h-4 w-4" />}
+                            {emargementMutation.isPending ? "Génération..." : "Émargement"}
+                          </button>
+                        </div>
+                        <div className="text-xs text-muted-foreground text-center">
+                          Générer des documents pour cette session
+                        </div>
+                      </div>
+                    )}
+                    {!s.isCompleted && !s.isCancelled && (
                       <div className="border-t border-border pt-3">
-                        <button
-                          onClick={() => certMutation.mutate(s.id)}
-                          disabled={certMutation.isPending}
-                          className="flex w-full items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
-                        >
-                          {certMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
-                          {certMutation.isPending ? "Génération en cours..." : "Générer les certificats"}
-                        </button>
+                        <details className="group">
+                          <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground">
+                            Générer des documents (convention, contrat)
+                          </summary>
+                          <div className="mt-2 space-y-2">
+                            {s.participants?.map((p: any) => (
+                              <button
+                                key={p.id}
+                                onClick={() => conventionMutation.mutate({ sessionId: s.id, participantId: p.id })}
+                                disabled={conventionMutation.isPending}
+                                className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-secondary disabled:opacity-50"
+                              >
+                                <UserCheck className="h-3 w-3" />
+                                Convention : {p.prenom} {p.nom}
+                              </button>
+                            ))}
+                            {s.formateurs?.map((f: any) => (
+                              <button
+                                key={f.id}
+                                onClick={() => contratMutation.mutate({ sessionId: s.id, formateurId: f.id })}
+                                disabled={contratMutation.isPending}
+                                className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-secondary disabled:opacity-50"
+                              >
+                                <Building2 className="h-3 w-3" />
+                                Contrat : {f.prenom} {f.nom}
+                              </button>
+                            ))}
+                          </div>
+                        </details>
                       </div>
                     )}
                     <div>
