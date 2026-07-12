@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 class ApiError extends Error {
   status: number;
@@ -28,7 +28,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 function isTokenExpired(token: string): boolean {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.exp * 1000 < Date.now();
   } catch {
     return true;
@@ -36,23 +36,23 @@ function isTokenExpired(token: string): boolean {
 }
 
 function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const token = localStorage.getItem('access_token');
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("access_token");
   return token && isTokenExpired(token) ? null : token;
 }
 
 function getRefreshToken(): string | null {
-  return typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+  return typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
 }
 
 function setTokens(access: string, refresh: string) {
-  localStorage.setItem('access_token', access);
-  localStorage.setItem('refresh_token', refresh);
+  localStorage.setItem("access_token", access);
+  localStorage.setItem("refresh_token", refresh);
 }
 
 function clearTokens() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
 }
 
 async function tryRefreshToken(): Promise<boolean> {
@@ -61,8 +61,8 @@ async function tryRefreshToken(): Promise<boolean> {
 
   try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken }),
     });
     if (!res.ok) {
@@ -95,11 +95,11 @@ async function authenticatedFetch<T>(path: string, options: RequestInit = {}): P
   }
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
   if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
@@ -116,7 +116,7 @@ async function authenticatedFetch<T>(path: string, options: RequestInit = {}): P
     const refreshed = await refreshPromise;
     if (refreshed) {
       const newToken = getAccessToken();
-      headers['Authorization'] = `Bearer ${newToken}`;
+      headers["Authorization"] = `Bearer ${newToken}`;
       res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     }
   }
@@ -126,26 +126,34 @@ async function authenticatedFetch<T>(path: string, options: RequestInit = {}): P
 
 export const api = {
   async get<T>(path: string): Promise<T> {
-    return authenticatedFetch<T>(path, { method: 'GET' });
+    return authenticatedFetch<T>(path, { method: "GET" });
   },
 
   async post<T>(path: string, body?: unknown): Promise<T> {
     return authenticatedFetch<T>(path, {
-      method: 'POST',
+      method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   },
 
   async patch<T>(path: string, body: unknown): Promise<T> {
     return authenticatedFetch<T>(path, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(body),
     });
   },
 
   async delete(path: string): Promise<void> {
-    await authenticatedFetch(path, { method: 'DELETE' });
+    await authenticatedFetch(path, { method: "DELETE" });
   },
 };
 
-export { setTokens, clearTokens, getAccessToken, getRefreshToken, tryRefreshToken, isTokenExpired, API_BASE };
+export {
+  setTokens,
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  tryRefreshToken,
+  isTokenExpired,
+  API_BASE,
+};

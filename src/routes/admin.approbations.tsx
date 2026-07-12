@@ -14,7 +14,11 @@ export const Route = createFileRoute("/admin/approbations")({
 function AdminApprobations() {
   const queryClient = useQueryClient();
 
-  const { data: pendingUsers, isLoading, error } = useQuery({
+  const {
+    data: pendingUsers,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["pending-users"],
     queryFn: () => api.get<any[]>("/auth/pending-users"),
   });
@@ -43,12 +47,18 @@ function AdminApprobations() {
       subtitle="Examinez les demandes d'inscription et approuvez ou rejetez les nouveaux participants."
     >
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
       ) : error ? (
         <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-12 text-center">
           <X className="mx-auto h-8 w-8 text-destructive" />
           <p className="mt-4 font-medium text-destructive">Erreur de chargement</p>
-          <p className="mt-1 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Impossible de récupérer les inscriptions en attente."}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {error instanceof Error
+              ? error.message
+              : "Impossible de récupérer les inscriptions en attente."}
+          </p>
         </div>
       ) : !pendingUsers || pendingUsers.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-12 text-center">
@@ -73,17 +83,32 @@ function AdminApprobations() {
                   <td className="px-4 py-3 font-medium">{u.username}</td>
                   <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary capitalize">{u.role}</span>
+                    <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary capitalize">
+                      {u.role}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {u.createdAt ? new Date(u.createdAt).toLocaleDateString("fr-FR") : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => approveMutation.mutate(u.id)} disabled={approveMutation.isPending}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => approveMutation.mutate(u.id)}
+                        disabled={approveMutation.isPending}
+                      >
                         <Check className="h-4 w-4 text-primary" /> Approuver
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => { if (window.confirm("Rejeter cette inscription ?")) rejectMutation.mutate(u.id); }} disabled={rejectMutation.isPending}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (window.confirm("Rejeter cette inscription ?"))
+                            rejectMutation.mutate(u.id);
+                        }}
+                        disabled={rejectMutation.isPending}
+                      >
                         <X className="h-4 w-4 text-destructive" /> Rejeter
                       </Button>
                     </div>

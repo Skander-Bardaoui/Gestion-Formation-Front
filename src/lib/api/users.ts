@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Participant = {
   id: string;
@@ -13,7 +13,7 @@ export type Participant = {
 };
 
 export async function getParticipants(): Promise<Participant[]> {
-  return api.get<Participant[]>('/users/participants');
+  return api.get<Participant[]>("/users/participants");
 }
 
 export type CreateParticipantDto = {
@@ -27,10 +27,13 @@ export type CreateParticipantDto = {
 };
 
 export async function createParticipant(dto: CreateParticipantDto): Promise<Participant> {
-  return api.post<Participant>('/users/participants', dto);
+  return api.post<Participant>("/users/participants", dto);
 }
 
-export async function updateParticipant(id: string, dto: Partial<CreateParticipantDto>): Promise<Participant> {
+export async function updateParticipant(
+  id: string,
+  dto: Partial<CreateParticipantDto>,
+): Promise<Participant> {
   return api.patch<Participant>(`/users/${id}`, dto);
 }
 

@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Entreprise = {
   id: string;
@@ -12,7 +12,7 @@ export type Entreprise = {
 };
 
 export async function getEntreprises(): Promise<Entreprise[]> {
-  return api.get<Entreprise[]>('/entreprises');
+  return api.get<Entreprise[]>("/entreprises");
 }
 
 export async function getEntreprise(id: string): Promise<Entreprise> {

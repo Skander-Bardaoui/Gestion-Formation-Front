@@ -81,10 +81,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "StirForma — Plateforme de gestion des formations" },
-      { name: "description", content: "StirForma centralise vos formations intra, inter et catalogue : sessions, formateurs, participants, certificats." },
+      {
+        name: "description",
+        content:
+          "StirForma centralise vos formations intra, inter et catalogue : sessions, formateurs, participants, certificats.",
+      },
       { name: "author", content: "StirForma" },
       { property: "og:title", content: "StirForma — Gestion des formations" },
-      { property: "og:description", content: "Plateforme tout-en-un pour piloter vos formations professionnelles." },
+      {
+        property: "og:description",
+        content: "Plateforme tout-en-un pour piloter vos formations professionnelles.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },

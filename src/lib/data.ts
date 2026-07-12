@@ -154,12 +154,42 @@ export const formations: Formation[] = [
 ];
 
 export const trainers = [
-  { name: "Camille Vasseur", expertise: "Management & Leadership", rating: 4.9, sessions: 42, city: "Paris" },
+  {
+    name: "Camille Vasseur",
+    expertise: "Management & Leadership",
+    rating: 4.9,
+    sessions: 42,
+    city: "Paris",
+  },
   { name: "Idriss Bennani", expertise: "Cybersécurité", rating: 4.8, sessions: 35, city: "Lyon" },
-  { name: "Sophie Lambert", expertise: "Data & Bureautique", rating: 4.9, sessions: 58, city: "Lyon" },
-  { name: "Léa Marchetti", expertise: "Design & Innovation", rating: 4.7, sessions: 24, city: "Marseille" },
-  { name: "Maître Hugo Renault", expertise: "Juridique & RGPD", rating: 4.8, sessions: 19, city: "Paris" },
-  { name: "Antoine Delcourt", expertise: "Soft skills & Communication", rating: 4.9, sessions: 47, city: "Bordeaux" },
+  {
+    name: "Sophie Lambert",
+    expertise: "Data & Bureautique",
+    rating: 4.9,
+    sessions: 58,
+    city: "Lyon",
+  },
+  {
+    name: "Léa Marchetti",
+    expertise: "Design & Innovation",
+    rating: 4.7,
+    sessions: 24,
+    city: "Marseille",
+  },
+  {
+    name: "Maître Hugo Renault",
+    expertise: "Juridique & RGPD",
+    rating: 4.8,
+    sessions: 19,
+    city: "Paris",
+  },
+  {
+    name: "Antoine Delcourt",
+    expertise: "Soft skills & Communication",
+    rating: 4.9,
+    sessions: 47,
+    city: "Bordeaux",
+  },
 ];
 
 export const categories = [

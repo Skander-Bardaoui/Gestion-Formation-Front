@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Award, FileSignature, FileText, Download, Loader2, Pen, FileCheck, UserCheck, Building2 } from "lucide-react";
+import {
+  Award,
+  FileSignature,
+  FileText,
+  Download,
+  Loader2,
+  Pen,
+  FileCheck,
+  UserCheck,
+  Building2,
+} from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -115,7 +125,8 @@ function AdminDocuments() {
       if (genType === "convention" && !selectedParticipant) throw new Error("Participant requis");
       if (genType === "contrat" && !selectedFormateur) throw new Error("Formateur requis");
       if (genType === "convention") return generateConvention(selectedSession, selectedParticipant);
-      if (genType === "contrat") return generateContratFormateur(selectedSession, selectedFormateur);
+      if (genType === "contrat")
+        return generateContratFormateur(selectedSession, selectedFormateur);
       if (genType === "emargement") return generateFeuilleEmargement(selectedSession);
       throw new Error("Type invalide");
     },
@@ -145,8 +156,18 @@ function AdminDocuments() {
       subtitle="Gérez les documents signés électroniquement : conventions, contrats formateurs, feuilles d'émargement et certificats."
       actions={
         <div className="flex gap-2">
-          <SignatureModal onSigned={() => queryClient.invalidateQueries({ queryKey: ["signatures-all"] })} />
-          <Dialog open={!!genDialog} onOpenChange={(o) => { if (!o) { setGenDialog(null); resetGenForm(); } }}>
+          <SignatureModal
+            onSigned={() => queryClient.invalidateQueries({ queryKey: ["signatures-all"] })}
+          />
+          <Dialog
+            open={!!genDialog}
+            onOpenChange={(o) => {
+              if (!o) {
+                setGenDialog(null);
+                resetGenForm();
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button onClick={() => setGenDialog("gen")} className="gap-2">
                 <FileText className="h-4 w-4" /> Générer un document
@@ -159,7 +180,13 @@ function AdminDocuments() {
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Type de document</Label>
-                  <Select value={genType || ""} onValueChange={(v) => { setGenType(v as any); resetGenForm(); }}>
+                  <Select
+                    value={genType || ""}
+                    onValueChange={(v) => {
+                      setGenType(v as any);
+                      resetGenForm();
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Choisir un type" />
                     </SelectTrigger>
@@ -181,7 +208,8 @@ function AdminDocuments() {
                       <SelectContent>
                         {sessions?.map((s: any) => (
                           <SelectItem key={s.id} value={s.id}>
-                            {s.formation?.titre || "Formation"} — {new Date(s.dateDebut).toLocaleDateString("fr-FR")}
+                            {s.formation?.titre || "Formation"} —{" "}
+                            {new Date(s.dateDebut).toLocaleDateString("fr-FR")}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -227,7 +255,12 @@ function AdminDocuments() {
 
                 <Button
                   onClick={() => genMutation.mutate()}
-                  disabled={genMutation.isPending || !selectedSession || (genType === "convention" && !selectedParticipant) || (genType === "contrat" && !selectedFormateur)}
+                  disabled={
+                    genMutation.isPending ||
+                    !selectedSession ||
+                    (genType === "convention" && !selectedParticipant) ||
+                    (genType === "contrat" && !selectedFormateur)
+                  }
                   className="w-full gap-2"
                 >
                   {genMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -252,14 +285,18 @@ function AdminDocuments() {
             <FileSignature className="h-4 w-4" />
           </span>
           <p className="mt-4 font-display text-3xl">{sigCount}</p>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Signatures vérifiées</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Signatures vérifiées
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-5">
           <span className="grid h-9 w-9 place-items-center rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
             <Pen className="h-4 w-4" />
           </span>
           <p className="mt-4 font-display text-3xl">{pendingCount}</p>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">En attente de vérification</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            En attente de vérification
+          </p>
         </div>
       </div>
 
@@ -289,7 +326,9 @@ function AdminDocuments() {
               <div className="flex flex-col items-center gap-3 py-12 text-sm text-muted-foreground">
                 <FileText className="h-10 w-10" />
                 <p>Aucun document signé pour le moment</p>
-                <p className="text-xs">Générez une convention, un contrat ou une feuille d'émargement</p>
+                <p className="text-xs">
+                  Générez une convention, un contrat ou une feuille d'émargement
+                </p>
               </div>
             ) : (
               <ul className="divide-y divide-border">
@@ -301,7 +340,10 @@ function AdminDocuments() {
                   if (doc.isSignedByParticipant) signedBy.push("Participant");
                   if (doc.isSignedByFormateur) signedBy.push("Formateur");
                   return (
-                    <li key={doc.id} className="grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 text-sm hover:bg-secondary/40">
+                    <li
+                      key={doc.id}
+                      className="grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 text-sm hover:bg-secondary/40"
+                    >
                       <span className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary">
                         <Icon className="h-4 w-4" />
                       </span>
@@ -309,11 +351,9 @@ function AdminDocuments() {
                         <p className="truncate font-medium">{doc.titre}</p>
                         <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           {label}
-                          {doc.fileSize && <>· {doc.fileSize}</>}
-                          · {new Date(doc.createdAt).toLocaleDateString("fr-FR")}
-                          {signedBy.length > 0 && (
-                            <> · Signé par : {signedBy.join(", ")}</>
-                          )}
+                          {doc.fileSize && <>· {doc.fileSize}</>}·{" "}
+                          {new Date(doc.createdAt).toLocaleDateString("fr-FR")}
+                          {signedBy.length > 0 && <> · Signé par : {signedBy.join(", ")}</>}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
@@ -353,7 +393,10 @@ function AdminDocuments() {
             ) : (
               <ul className="divide-y divide-border">
                 {signatures.map((sig) => (
-                  <li key={sig.id} className="grid grid-cols-[100px_1fr_auto] items-center gap-4 px-4 py-3 text-sm hover:bg-secondary/40">
+                  <li
+                    key={sig.id}
+                    className="grid grid-cols-[100px_1fr_auto] items-center gap-4 px-4 py-3 text-sm hover:bg-secondary/40"
+                  >
                     <div className="h-12 w-24 overflow-hidden rounded border border-border bg-white p-1">
                       <img
                         src={sig.imageData}
@@ -368,7 +411,8 @@ function AdminDocuments() {
                       <p className="text-xs text-muted-foreground">
                         {sig.user?.email || ""}
                         {sig.isVerified ? " · Vérifiée" : " · En attente"}
-                        {sig.verifiedAt && ` · ${new Date(sig.verifiedAt).toLocaleDateString("fr-FR")}`}
+                        {sig.verifiedAt &&
+                          ` · ${new Date(sig.verifiedAt).toLocaleDateString("fr-FR")}`}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
@@ -384,17 +428,30 @@ function AdminDocuments() {
                         </Button>
                       )}
                       {sig.isVerified && (
-                        <Badge variant="secondary" className="text-[10px]">Vérifiée</Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          Vérifiée
+                        </Badge>
                       )}
                       <button
                         onClick={() => {
-                          if (confirm("Supprimer cette signature ?")) deleteSigMutation.mutate(sig.id);
+                          if (confirm("Supprimer cette signature ?"))
+                            deleteSigMutation.mutate(sig.id);
                         }}
                         className="rounded p-1 text-destructive hover:bg-destructive/10"
                         title="Supprimer"
                       >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                       </button>
                     </div>

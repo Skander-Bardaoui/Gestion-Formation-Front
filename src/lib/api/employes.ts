@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Employe = {
   id: string;
@@ -18,7 +18,7 @@ export type Employe = {
 };
 
 export async function getEmployes(): Promise<Employe[]> {
-  return api.get<Employe[]>('/employes');
+  return api.get<Employe[]>("/employes");
 }
 
 export async function getEmploye(id: string): Promise<Employe> {
@@ -36,7 +36,7 @@ export type CreateEmployeDto = {
 };
 
 export async function createEmploye(dto: CreateEmployeDto): Promise<Employe> {
-  return api.post<Employe>('/employes', dto);
+  return api.post<Employe>("/employes", dto);
 }
 
 export async function updateEmploye(id: string, dto: Partial<CreateEmployeDto>): Promise<Employe> {

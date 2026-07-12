@@ -1,12 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Clock, Loader2, ArrowUpRight, Moon, Sun, FileText, Upload, Download, ChevronDown, ChevronUp, Paperclip } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Loader2,
+  ArrowUpRight,
+  Moon,
+  Sun,
+  FileText,
+  Upload,
+  Download,
+  ChevronDown,
+  ChevronUp,
+  Paperclip,
+} from "lucide-react";
 import { ProtectedRoute } from "@/components/protected-route";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/contexts/auth-context";
 import { getMySessions } from "@/lib/api/sessions";
-import { getSessionDocuments, uploadSessionDocument, type SessionDocument } from "@/lib/api/session-documents";
+import {
+  getSessionDocuments,
+  uploadSessionDocument,
+  type SessionDocument,
+} from "@/lib/api/session-documents";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/formateur/dashboard")({
@@ -26,12 +43,13 @@ function FormateurDashboard() {
 
   return (
     <PageShell>
-
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-4xl">Mes sessions</h1>
-            <p className="mt-1 text-muted-foreground">Sessions où vous intervenez en tant que formateur.</p>
+            <p className="mt-1 text-muted-foreground">
+              Sessions où vous intervenez en tant que formateur.
+            </p>
           </div>
           <Link to="/mes-formations" className="text-sm text-primary hover:underline">
             Voir mes formations suivies →
@@ -39,12 +57,17 @@ function FormateurDashboard() {
         </div>
 
         {isLoading ? (
-          <div className="mt-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          <div className="mt-12 flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
         ) : !mesSessions || mesSessions.length === 0 ? (
           <div className="mt-10 rounded-xl border border-border bg-card p-12 text-center">
             <Calendar className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">Aucune session pour le moment</p>
-            <Link to="/catalogue" className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline">
+            <Link
+              to="/catalogue"
+              className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            >
               Voir le catalogue <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -99,11 +122,17 @@ function SessionCard({ session }: { session: any }) {
       </div>
       {session.formation?.imageUrl ? (
         <div className="mt-3 overflow-hidden rounded-lg aspect-video">
-          <img src={`http://localhost:3001${session.formation.imageUrl}`} alt={session.formation.titre} className="h-full w-full object-cover" />
+          <img
+            src={`http://localhost:3001${session.formation.imageUrl}`}
+            alt={session.formation.titre}
+            className="h-full w-full object-cover"
+          />
         </div>
       ) : (
         <div className="mt-3 overflow-hidden rounded-lg aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-          <span className="font-display text-4xl text-muted-foreground/20">{session.formation?.titre?.[0] || "F"}</span>
+          <span className="font-display text-4xl text-muted-foreground/20">
+            {session.formation?.titre?.[0] || "F"}
+          </span>
         </div>
       )}
       <h3 className="mt-3 font-display text-xl">{session.formation?.titre || "Formation"}</h3>
@@ -122,7 +151,9 @@ function SessionCard({ session }: { session: any }) {
         onClick={() => setExpanded(!expanded)}
         className="mt-4 flex w-full items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
       >
-        <span className="flex items-center gap-2"><Paperclip className="h-4 w-4" /> Documents</span>
+        <span className="flex items-center gap-2">
+          <Paperclip className="h-4 w-4" /> Documents
+        </span>
         {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
 
@@ -131,7 +162,13 @@ function SessionCard({ session }: { session: any }) {
           <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
             <Upload className="h-4 w-4" />
             {uploading ? "Upload..." : "Ajouter un document"}
-            <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png,.webp,.gif" />
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleUpload}
+              disabled={uploading}
+              accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png,.webp,.gif"
+            />
           </label>
 
           {documents?.length === 0 && (
@@ -162,17 +199,20 @@ function DarkModeToggle() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
+    const stored = localStorage.getItem("theme");
+    if (
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
       setDark(true);
     }
   }, []);
 
   function toggle() {
     const next = !dark;
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
     setDark(next);
   }
 
@@ -181,7 +221,7 @@ function DarkModeToggle() {
       type="button"
       onClick={toggle}
       className="rounded-md border border-border p-2 text-foreground transition-colors hover:bg-secondary"
-      title={dark ? 'Mode clair' : 'Mode sombre'}
+      title={dark ? "Mode clair" : "Mode sombre"}
     >
       {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>

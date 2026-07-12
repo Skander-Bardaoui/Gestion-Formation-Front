@@ -1,10 +1,10 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Presence = {
   id: string;
   datePresence: string;
-  statutFormation: 'present' | 'absent' | 'retard' | 'excuse';
-  statutCantine: 'present' | 'absent' | 'retard' | 'excuse';
+  statutFormation: "present" | "absent" | "retard" | "excuse";
+  statutCantine: "present" | "absent" | "retard" | "excuse";
   heureArrivee: string;
   heureDepart: string;
   commentaire: string;
@@ -15,7 +15,7 @@ export type Presence = {
 };
 
 export async function getPresences(): Promise<Presence[]> {
-  return api.get<Presence[]>('/presences');
+  return api.get<Presence[]>("/presences");
 }
 
 export async function getPresence(id: string): Promise<Presence> {

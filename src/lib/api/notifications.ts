@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Notification = {
   id: string;
@@ -14,7 +14,7 @@ export type Notification = {
 };
 
 export async function getNotifications(): Promise<Notification[]> {
-  return api.get<Notification[]>('/notifications');
+  return api.get<Notification[]>("/notifications");
 }
 
 export async function getNotification(id: string): Promise<Notification> {

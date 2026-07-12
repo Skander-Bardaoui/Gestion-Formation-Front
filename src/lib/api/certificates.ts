@@ -1,11 +1,11 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Certificate = {
   id: string;
   numeroCertificat: string;
   dateEmission: string;
   dateExpiration: string;
-  statut: 'emis' | 'envoye' | 'telecharge';
+  statut: "emis" | "envoye" | "telecharge";
   qrCode: string;
   signatureElectronique: string;
   certificatUrl: string;
@@ -18,7 +18,7 @@ export type Certificate = {
 };
 
 export async function getCertificates(): Promise<Certificate[]> {
-  return api.get<Certificate[]>('/certificates');
+  return api.get<Certificate[]>("/certificates");
 }
 
 export async function getCertificate(id: string): Promise<Certificate> {
@@ -26,7 +26,7 @@ export async function getCertificate(id: string): Promise<Certificate> {
 }
 
 export async function getMyCertificates(): Promise<Certificate[]> {
-  return api.get<Certificate[]>('/certificates/mine');
+  return api.get<Certificate[]>("/certificates/mine");
 }
 
 export async function generateSessionCertificates(sessionId: string): Promise<Certificate[]> {
@@ -34,6 +34,6 @@ export async function generateSessionCertificates(sessionId: string): Promise<Ce
 }
 
 export function getCertificateDownloadUrl(certId: string): string {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   return `http://localhost:3001/api/certificates/${certId}/download?token=${token}`;
 }

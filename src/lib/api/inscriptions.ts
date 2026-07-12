@@ -1,11 +1,11 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Inscription = {
   id: string;
   userId: string;
   sessionId: string;
   montant: number;
-  statutPaiement: 'en_attente' | 'paye' | 'refuse';
+  statutPaiement: "en_attente" | "paye" | "refuse";
   methodePaiement: string;
   datePaiement: string | null;
   dateInscription: string;
@@ -32,11 +32,11 @@ export type Inscription = {
 };
 
 export async function getPendingInscriptions(): Promise<Inscription[]> {
-  return api.get<Inscription[]>('/inscriptions/pending');
+  return api.get<Inscription[]>("/inscriptions/pending");
 }
 
 export async function getMyInscriptions(): Promise<Inscription[]> {
-  return api.get<Inscription[]>('/inscriptions/mine');
+  return api.get<Inscription[]>("/inscriptions/mine");
 }
 
 export async function confirmPayment(inscriptionId: string): Promise<Inscription> {

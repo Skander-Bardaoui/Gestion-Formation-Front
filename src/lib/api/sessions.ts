@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from "./client";
 
 export type Session = {
   id: string;
@@ -21,12 +21,15 @@ export type Session = {
   participants: any[];
   employes: any[];
   formateurs: any[];
+  clonedFromId?: string;
+  clonedFromCabinetId?: string;
   createdAt: string;
   updatedAt: string;
 };
 
-export async function getSessions(): Promise<Session[]> {
-  return api.get<Session[]>('/sessions');
+export async function getSessions(cabinetId?: string): Promise<Session[]> {
+  const params = cabinetId ? `?cabinetId=${cabinetId}` : "";
+  return api.get<Session[]>(`/sessions${params}`);
 }
 
 export async function getSession(id: string): Promise<Session> {
@@ -34,7 +37,7 @@ export async function getSession(id: string): Promise<Session> {
 }
 
 export async function createSession(dto: any): Promise<Session> {
-  return api.post<Session>('/sessions', dto);
+  return api.post<Session>("/sessions", dto);
 }
 
 export async function updateSession(id: string, dto: any): Promise<Session> {
@@ -50,6 +53,10 @@ export async function enrollInSession(sessionId: string): Promise<Session> {
 }
 
 export async function getMySessions(type?: string): Promise<Session[]> {
-  const path = type ? `/sessions/mine?type=${type}` : '/sessions/mine';
+  const path = type ? `/sessions/mine?type=${type}` : "/sessions/mine";
   return api.get<Session[]>(path);
+}
+
+export async function cloneSessionForPlatform(id: string): Promise<Session> {
+  return api.post<Session>(`/sessions/${id}/clone`);
 }

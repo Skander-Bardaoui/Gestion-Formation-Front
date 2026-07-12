@@ -2,7 +2,11 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { Bell, Settings, User, LogOut, Loader2, Moon, Sun } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../contexts/auth-context";
-import { getNotifications, markNotificationAsRead, type Notification } from "@/lib/api/notifications";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  type Notification,
+} from "@/lib/api/notifications";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -33,18 +37,19 @@ export function SiteHeader() {
           <span className="font-display text-2xl tracking-tight text-foreground">StirForma</span>
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
-          {!isAuthenticated && publicNav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: n.to === "/" }}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground font-medium" }}
-            >
-              {n.label}
-            </Link>
-          ))}
-          {!isLoading && isAuthenticated && user?.role !== "admin" && (
+          {!isAuthenticated &&
+            publicNav.map((n) => (
+              <Link
+                key={n.to}
+                to={n.to}
+                activeOptions={{ exact: n.to === "/" }}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-foreground font-medium" }}
+              >
+                {n.label}
+              </Link>
+            ))}
+          {!isLoading && isAuthenticated && user?.role !== "admin" && user?.role !== "cabinet" && (
             <>
               <Link
                 to="/mes-formations"
@@ -78,21 +83,29 @@ export function SiteHeader() {
               )}
             </>
           )}
+          {!isLoading && isAuthenticated && user?.role === "cabinet" && (
+            <Link
+              to="/cabinet"
+              className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+            >
+              Tableau de bord
+            </Link>
+          )}
         </nav>
         <div className="flex items-center gap-2">
           <DarkModeToggle />
           {!isLoading && isAuthenticated ? (
             <>
-              {user?.role === "admin" && (
+              {(user?.role === "admin" || user?.role === "cabinet") && (
                 <Link
-                  to="/admin"
+                  to={user?.role === "admin" ? "/admin" : "/cabinet"}
                   className="hidden rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-secondary sm:inline-flex"
                 >
                   Tableau de bord
                 </Link>
               )}
 
-              {user?.role !== "admin" && (
+              {user?.role !== "admin" && user?.role !== "cabinet" && (
                 <Link
                   to="/catalogue"
                   className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-secondary"
@@ -105,7 +118,11 @@ export function SiteHeader() {
                 <DropdownMenuTrigger asChild>
                   <button className="overflow-hidden rounded-full border-2 border-border text-foreground transition-colors hover:border-primary h-9 w-9">
                     {user?.avatarUrl ? (
-                      <img src={`http://localhost:3001${user.avatarUrl}`} alt="Avatar" className="h-full w-full object-cover" />
+                      <img
+                        src={`http://localhost:3001${user.avatarUrl}`}
+                        alt="Avatar"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <div className="grid h-full w-full place-items-center bg-primary/10 text-sm font-medium text-primary">
                         {user?.username?.[0]?.toUpperCase() || "?"}
@@ -119,7 +136,10 @@ export function SiteHeader() {
                       <User className="h-4 w-4" /> Paramètres
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-destructive"
+                  >
                     <LogOut className="h-4 w-4" /> Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -143,17 +163,20 @@ function DarkModeToggle() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
+    const stored = localStorage.getItem("theme");
+    if (
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
       setDark(true);
     }
   }, []);
 
   function toggle() {
     const next = !dark;
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
     setDark(next);
   }
 
@@ -162,7 +185,7 @@ function DarkModeToggle() {
       type="button"
       onClick={toggle}
       className="rounded-md border border-border p-2 text-foreground transition-colors hover:bg-secondary"
-      title={dark ? 'Mode clair' : 'Mode sombre'}
+      title={dark ? "Mode clair" : "Mode sombre"}
     >
       {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
@@ -188,12 +211,21 @@ function NotificationBell() {
     if (!open) return;
     setLoading(true);
     getNotifications()
-      .then((data) => { setItems(data); setLoading(false); })
-      .catch(() => { setItems([]); setLoading(false); });
+      .then((data) => {
+        setItems(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setItems([]);
+        setLoading(false);
+      });
   }, [open]);
 
   async function markRead(id: string) {
-    try { await markNotificationAsRead(id); setItems((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n)); } catch {}
+    try {
+      await markNotificationAsRead(id);
+      setItems((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    } catch {}
   }
 
   const unread = items.filter((n) => !n.isRead);
@@ -218,9 +250,13 @@ function NotificationBell() {
             Notifications
           </div>
           {loading ? (
-            <div className="flex justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
           ) : items.length === 0 ? (
-            <div className="px-3 py-4 text-center text-xs text-muted-foreground">Aucune notification</div>
+            <div className="px-3 py-4 text-center text-xs text-muted-foreground">
+              Aucune notification
+            </div>
           ) : (
             <div className="max-h-72 overflow-y-auto">
               {items.slice(0, 10).map((n) => (
@@ -262,16 +298,26 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold text-foreground">Plateforme</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/">Accueil</Link></li>
-            <li><Link to="/a-propos">À propos</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <li>
+              <Link to="/">Accueil</Link>
+            </li>
+            <li>
+              <Link to="/a-propos">À propos</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="text-sm font-semibold text-foreground">Société</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/a-propos">À propos</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <li>
+              <Link to="/a-propos">À propos</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
           </ul>
         </div>
         <div>

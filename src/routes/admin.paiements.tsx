@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Loader2, Wallet, CheckCircle, XCircle, Calendar, User, Euro, AlertTriangle } from "lucide-react";
+import {
+  Loader2,
+  Wallet,
+  CheckCircle,
+  XCircle,
+  Calendar,
+  User,
+  Euro,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -14,7 +23,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getPendingInscriptions, confirmPayment, rejectInscription, type Inscription } from "@/lib/api/inscriptions";
+import {
+  getPendingInscriptions,
+  confirmPayment,
+  rejectInscription,
+  type Inscription,
+} from "@/lib/api/inscriptions";
 
 export const Route = createFileRoute("/admin/paiements")({
   component: AdminPaiementsPage,
@@ -74,7 +88,10 @@ function AdminPaiementsPage() {
                     <div className="flex items-center gap-2">
                       <Wallet className="h-5 w-5 text-amber-500" />
                       <h3 className="font-display text-lg">{s.formation?.titre || "Formation"}</h3>
-                      <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
+                      <Badge
+                        variant="outline"
+                        className="border-amber-300 text-amber-700 bg-amber-50"
+                      >
                         En attente
                       </Badge>
                     </div>
@@ -82,11 +99,17 @@ function AdminPaiementsPage() {
                       <span className="flex items-center gap-1.5">
                         <User className="h-4 w-4" />
                         {u.prenom} {u.nom}
-                        <span className="rounded bg-secondary px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{u.role}</span>
+                        <span className="rounded bg-secondary px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {u.role}
+                        </span>
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Calendar className="h-4 w-4" />
-                        {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                        {d.toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Euro className="h-4 w-4" />
@@ -94,7 +117,8 @@ function AdminPaiementsPage() {
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {u.email} · Inscrit le {new Date(ins.dateInscription).toLocaleDateString("fr-FR")}
+                      {u.email} · Inscrit le{" "}
+                      {new Date(ins.dateInscription).toLocaleDateString("fr-FR")}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -144,8 +168,8 @@ function AdminPaiementsPage() {
             <DialogDescription className="space-y-3 pt-3">
               <p>Êtes-vous sûr de vouloir refuser cette inscription ?</p>
               <p className="text-xs text-muted-foreground">
-                L'utilisateur verra le statut "Refusé" dans ses formations et
-                pourra se réinscrire ultérieurement.
+                L'utilisateur verra le statut "Refusé" dans ses formations et pourra se réinscrire
+                ultérieurement.
               </p>
             </DialogDescription>
           </DialogHeader>

@@ -1,6 +1,19 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { login as apiLogin, getProfile, logout as apiLogout, type User, type LoginDto } from '../lib/api/auth';
-import { setTokens, clearTokens, getAccessToken, getRefreshToken, isTokenExpired, tryRefreshToken } from '../lib/api/client';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  login as apiLogin,
+  getProfile,
+  logout as apiLogout,
+  type User,
+  type LoginDto,
+} from "../lib/api/auth";
+import {
+  setTokens,
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  isTokenExpired,
+  tryRefreshToken,
+} from "../lib/api/client";
 
 type AuthContextType = {
   user: User | null;
@@ -68,7 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, setUser }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated: !!user, isLoading, login, logout, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -76,6 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

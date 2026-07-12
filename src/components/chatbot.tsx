@@ -58,7 +58,10 @@ export function ChatBot() {
       const res = await api.post<{ answer: string }>("/chatbot/ask", { question: q });
       setMessages((prev) => [...prev, { role: "bot", text: res.answer }]);
     } catch (err: any) {
-      setMessages((prev) => [...prev, { role: "bot", text: err.message || "Erreur de connexion." }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: err.message || "Erreur de connexion." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -97,7 +100,10 @@ export function ChatBot() {
 
           <div className="flex h-80 flex-col gap-2 overflow-y-auto p-3">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                key={i}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div
                   className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
                     msg.role === "user"
@@ -136,7 +142,9 @@ export function ChatBot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder={isAuthenticated ? "Posez votre question..." : "Connectez-vous pour discuter"}
+                placeholder={
+                  isAuthenticated ? "Posez votre question..." : "Connectez-vous pour discuter"
+                }
                 disabled={!isAuthenticated || loading}
                 className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
               />
@@ -145,7 +153,11 @@ export function ChatBot() {
                 disabled={!isAuthenticated || loading || !input.trim()}
                 className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>

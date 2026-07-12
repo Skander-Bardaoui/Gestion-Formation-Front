@@ -47,10 +47,16 @@ export function SignatureModal({ onSigned }: SignatureModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!loading) setOpen(o); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!loading) setOpen(o);
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" onClick={handleOpen} className="gap-2">
-          <Pen className="h-4 w-4" /> {savedSig ? "Modifier ma signature" : "Signer électroniquement"}
+          <Pen className="h-4 w-4" />{" "}
+          {savedSig ? "Modifier ma signature" : "Signer électroniquement"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[560px]">

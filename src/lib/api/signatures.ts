@@ -1,5 +1,5 @@
-import { api } from './client';
-import { getAccessToken, API_BASE } from './client';
+import { api } from "./client";
+import { getAccessToken, API_BASE } from "./client";
 
 export type Signature = {
   id: string;
@@ -15,7 +15,7 @@ export type Signature = {
 
 export type DocumentSigne = {
   id: string;
-  type: 'convention_formation' | 'feuille_emargement' | 'contrat_formateur' | 'certificat';
+  type: "convention_formation" | "feuille_emargement" | "contrat_formateur" | "certificat";
   titre: string;
   fileUrl: string;
   fileSize: string | null;
@@ -34,23 +34,23 @@ export type DocumentSigne = {
 };
 
 export async function saveSignature(imageData: string, type?: string): Promise<Signature> {
-  return api.post<Signature>('/signatures', { imageData, type });
+  return api.post<Signature>("/signatures", { imageData, type });
 }
 
 export async function getMySignatures(): Promise<Signature[]> {
-  return api.get<Signature[]>('/signatures/mine');
+  return api.get<Signature[]>("/signatures/mine");
 }
 
 export async function getLatestSignature(): Promise<Signature | null> {
   try {
-    return await api.get<Signature>('/signatures/latest');
+    return await api.get<Signature>("/signatures/latest");
   } catch {
     return null;
   }
 }
 
 export async function getAllSignatures(): Promise<Signature[]> {
-  return api.get<Signature[]>('/signatures/all');
+  return api.get<Signature[]>("/signatures/all");
 }
 
 export async function verifySignature(id: string): Promise<Signature> {
@@ -61,11 +61,17 @@ export async function deleteSignature(id: string): Promise<void> {
   return api.delete(`/signatures/${id}`);
 }
 
-export async function generateConvention(sessionId: string, participantId: string): Promise<DocumentSigne> {
+export async function generateConvention(
+  sessionId: string,
+  participantId: string,
+): Promise<DocumentSigne> {
   return api.post<DocumentSigne>(`/signatures/generate-convention/${sessionId}/${participantId}`);
 }
 
-export async function generateContratFormateur(sessionId: string, formateurId: string): Promise<DocumentSigne> {
+export async function generateContratFormateur(
+  sessionId: string,
+  formateurId: string,
+): Promise<DocumentSigne> {
   return api.post<DocumentSigne>(`/signatures/generate-contrat/${sessionId}/${formateurId}`);
 }
 
@@ -74,11 +80,11 @@ export async function generateFeuilleEmargement(sessionId: string): Promise<Docu
 }
 
 export async function getAllDocumentsSignes(): Promise<DocumentSigne[]> {
-  return api.get<DocumentSigne[]>('/signatures/documents');
+  return api.get<DocumentSigne[]>("/signatures/documents");
 }
 
 export async function getMyDocumentsSignes(): Promise<DocumentSigne[]> {
-  return api.get<DocumentSigne[]>('/signatures/documents/mine');
+  return api.get<DocumentSigne[]>("/signatures/documents/mine");
 }
 
 export async function getDocumentsSignesBySession(sessionId: string): Promise<DocumentSigne[]> {
@@ -94,10 +100,10 @@ export async function downloadDocumentSigne(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/signatures/documents/${id}/download`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
-  if (!res.ok) throw new Error('Erreur lors du téléchargement');
+  if (!res.ok) throw new Error("Erreur lors du téléchargement");
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = `document_${id.slice(0, 8)}.pdf`;
   document.body.appendChild(a);

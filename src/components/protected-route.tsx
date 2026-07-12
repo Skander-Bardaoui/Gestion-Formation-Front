@@ -3,13 +3,19 @@ import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "../contexts/auth-context";
 import { Loader2 } from "lucide-react";
 
-export function ProtectedRoute({ children, requiredRole }: { children: ReactNode; requiredRole?: string | string[] }) {
+export function ProtectedRoute({
+  children,
+  requiredRole,
+}: {
+  children: ReactNode;
+  requiredRole?: string | string[];
+}) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   const hasRole = requiredRole
     ? Array.isArray(requiredRole)
-      ? requiredRole.includes(user?.role || '')
+      ? requiredRole.includes(user?.role || "")
       : user?.role === requiredRole
     : true;
 

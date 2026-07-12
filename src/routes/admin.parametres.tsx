@@ -67,17 +67,31 @@ function AdminParametres() {
     },
   });
 
-  const roleLabel = user?.role === "admin" ? "Administrateur" : user?.role === "formateur" ? "Formateur" : "Participant";
+  const roleLabel =
+    user?.role === "admin"
+      ? "Administrateur"
+      : user?.role === "formateur"
+        ? "Formateur"
+        : "Participant";
 
   return (
-    <AdminShell title="Paramètres" subtitle="Mettez a jour vos informations personnelles et votre mot de passe en toute simplicite.">
+    <AdminShell
+      title="Paramètres"
+      subtitle="Mettez a jour vos informations personnelles et votre mot de passe en toute simplicite."
+    >
       <div className="grid gap-8 md:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-6">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
             <h2 className="font-display text-2xl">Informations du compte</h2>
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); profileMutation.mutate(); }} className="mt-6 space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              profileMutation.mutate();
+            }}
+            className="mt-6 space-y-4"
+          >
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Nom</Label>
@@ -90,11 +104,20 @@ function AdminParametres() {
             </div>
             <div>
               <Label>Nom d'utilisateur</Label>
-              <Input value={username} onChange={(e) => setUsername(e.target.value)} required minLength={3} />
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                minLength={3}
+              />
             </div>
             <div>
               <Label>Téléphone</Label>
-              <Input placeholder="+216XXXXXXXX" value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+              <Input
+                placeholder="+216XXXXXXXX"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+              />
             </div>
             <div>
               <Label>Email</Label>
@@ -106,7 +129,11 @@ function AdminParametres() {
               <Input value={roleLabel} disabled className="opacity-60" />
             </div>
             <Button type="submit" disabled={profileMutation.isPending}>
-              {profileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {profileMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Enregistrer
             </Button>
             {profileMutation.isSuccess && <p className="text-sm text-primary">Profil mis à jour</p>}
@@ -118,24 +145,55 @@ function AdminParametres() {
             <Lock className="h-5 w-5 text-primary" />
             <h2 className="font-display text-2xl">Mot de passe</h2>
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); setPasswordError(""); passwordMutation.mutate(); }} className="mt-6 space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setPasswordError("");
+              passwordMutation.mutate();
+            }}
+            className="mt-6 space-y-4"
+          >
             <div>
               <Label>Mot de passe actuel</Label>
-              <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+              <Input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label>Nouveau mot de passe</Label>
-              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} />
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+              />
             </div>
             <div>
               <Label>Confirmer le nouveau mot de passe</Label>
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
             {passwordError && (
-              <p className={`text-sm ${passwordMutation.isSuccess ? "text-primary" : "text-destructive"}`}>{passwordError}</p>
+              <p
+                className={`text-sm ${passwordMutation.isSuccess ? "text-primary" : "text-destructive"}`}
+              >
+                {passwordError}
+              </p>
             )}
             <Button type="submit" disabled={passwordMutation.isPending}>
-              {passwordMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+              {passwordMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Lock className="h-4 w-4" />
+              )}
               Mettre à jour
             </Button>
           </form>
@@ -147,7 +205,8 @@ function AdminParametres() {
             <h2 className="font-display text-2xl">Signature électronique</h2>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Votre signature sera intégrée automatiquement dans les conventions, contrats, certificats et feuilles d'émargement.
+            Votre signature sera intégrée automatiquement dans les conventions, contrats,
+            certificats et feuilles d'émargement.
           </p>
           <div className="mt-6">
             <SignaturePad
