@@ -23,13 +23,17 @@ export type Session = {
   formateurs: any[];
   clonedFromId?: string;
   clonedFromCabinetId?: string;
+  clonedFromCabinetName?: string;
   createdAt: string;
   updatedAt: string;
 };
 
-export async function getSessions(cabinetId?: string): Promise<Session[]> {
-  const params = cabinetId ? `?cabinetId=${cabinetId}` : "";
-  return api.get<Session[]>(`/sessions${params}`);
+export async function getSessions(cabinetId?: string, all?: boolean): Promise<Session[]> {
+  const params = new URLSearchParams();
+  if (cabinetId) params.set("cabinetId", cabinetId);
+  if (all) params.set("all", "true");
+  const qs = params.toString();
+  return api.get<Session[]>(`/sessions${qs ? `?${qs}` : ""}`);
 }
 
 export async function getSession(id: string): Promise<Session> {

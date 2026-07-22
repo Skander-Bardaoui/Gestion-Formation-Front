@@ -14,12 +14,15 @@ import {
   FileText,
   Download,
   Clock,
+  ToggleRight,
+  ToggleLeft,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { getCabinets, createCabinet, type Cabinet } from "@/lib/api/cabinets";
+import { toggleUserActive } from "@/lib/api/users";
 import { API_BASE } from "@/lib/api/client";
 import { getFormateurs, type Formateur, cloneFormateurForPlatform } from "@/lib/api/formateurs";
 import { getFormations, type Formation, cloneFormationForPlatform } from "@/lib/api/formations";
@@ -642,8 +645,18 @@ function AdminCabinets() {
   const [open, setOpen] = useState(false);
   const [detailCabinet, setDetailCabinet] = useState<Cabinet | null>(null);
   const [form, setForm] = useState({ nomCabinet: "", email: "", telephone: "" });
+  const [search, setSearch] = useState("");
 
   const { data: cabinets, isLoading } = useQuery({ queryKey: ["cabinets"], queryFn: getCabinets });
+  const filtered = (cabinets || []).filter((c) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      c.nom.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q) ||
+      (c.telephone || "").toLowerCase().includes(q)
+    );
+  });
 
   const createMutation = useMutation({
     mutationFn: () => createCabinet(form),
@@ -661,6 +674,16 @@ function AdminCabinets() {
         toast.error("Erreur lors de la création");
       }
     },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      toggleUserActive(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cabinets"] });
+      toast.success("Statut mis à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   return (
@@ -732,45 +755,72 @@ function AdminCabinets() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {(!cabinets || cabinets.length === 0) && (
-            <div className="col-span-full py-12 text-center text-muted-foreground">
-              Aucun cabinet pour le moment
-            </div>
-          )}
-          {cabinets?.map((c: Cabinet) => (
-            <div key={c.id} className="rounded-xl border border-border bg-card p-5">
-              <div className="flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">
-                  {c.nom?.[0] || c.email[0].toUpperCase()}
+        <div>
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 rounded-md border border-border bg-background px-3 text-xs outline-none focus:border-primary"
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.length === 0 && (
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                {cabinets?.length === 0
+                  ? "Aucun cabinet pour le moment"
+                  : "Aucun résultat pour cette recherche"}
+              </div>
+            )}
+            {filtered.map((c: Cabinet) => (
+              <div key={c.id} className="rounded-xl border border-border bg-card p-5">
+                <div className="flex items-start gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">
+                    {c.nom?.[0] || c.email[0].toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate font-display text-lg">{c.nom}</h3>
+                    <p className="truncate text-xs text-muted-foreground">{c.email}</p>
+                    {c.telephone && <p className="text-xs text-muted-foreground">{c.telephone}</p>}
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-display text-lg">{c.nom}</h3>
-                  <p className="truncate text-xs text-muted-foreground">{c.email}</p>
-                  {c.telephone && <p className="text-xs text-muted-foreground">{c.telephone}</p>}
+                <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${c.isActive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}
+                  >
+                    {c.isActive ? "Actif" : "Inactif"}
+                  </span>
+                  <button
+                    onClick={() => toggleMutation.mutate({ id: c.id, isActive: !c.isActive })}
+                    disabled={toggleMutation.isPending}
+                    className={`rounded p-1.5 ${c.isActive ? "text-green-600 hover:bg-green-100" : "text-muted-foreground hover:bg-secondary"}`}
+                    title={c.isActive ? "Désactiver" : "Activer"}
+                  >
+                    {c.isActive ? (
+                      <ToggleRight className="h-4 w-4" />
+                    ) : (
+                      <ToggleLeft className="h-4 w-4" />
+                    )}
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-8 px-2"
+                    onClick={() => setDetailCabinet(c)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <a
+                    href={`mailto:${c.email}`}
+                    className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs hover:bg-secondary"
+                  >
+                    <Mail className="h-3 w-3" /> Contacter
+                  </a>
                 </div>
               </div>
-              <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                  Actif
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto h-8 px-2"
-                  onClick={() => setDetailCabinet(c)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <a
-                  href={`mailto:${c.email}`}
-                  className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs hover:bg-secondary"
-                >
-                  <Mail className="h-3 w-3" /> Contacter
-                </a>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 

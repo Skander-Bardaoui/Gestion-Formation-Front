@@ -18,6 +18,7 @@ export type Formation = {
   isActive: boolean;
   clonedFromId?: string;
   clonedFromCabinetId?: string;
+  clonedFromCabinetName?: string;
   createdAt: string;
   updatedAt: string;
   sessions?: any[];
@@ -37,9 +38,12 @@ export type CreateFormationDto = {
   capaciteMax?: number;
 };
 
-export async function getFormations(cabinetId?: string): Promise<Formation[]> {
-  const params = cabinetId ? `?cabinetId=${cabinetId}` : "";
-  return api.get<Formation[]>(`/formations${params}`);
+export async function getFormations(cabinetId?: string, all?: boolean): Promise<Formation[]> {
+  const params = new URLSearchParams();
+  if (cabinetId) params.set("cabinetId", cabinetId);
+  if (all) params.set("all", "true");
+  const qs = params.toString();
+  return api.get<Formation[]>(`/formations${qs ? `?${qs}` : ""}`);
 }
 
 export async function getFormation(id: string): Promise<Formation> {

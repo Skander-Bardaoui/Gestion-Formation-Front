@@ -1,5 +1,5 @@
-import { Link, useRouterState, useRouter } from "@tanstack/react-router";
-import { useRef, useState, useEffect } from "react";
+import { Link, useRouterState, useRouter, useNavigate } from "@tanstack/react-router";
+import { useRef, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -19,7 +19,9 @@ import {
   Star,
   Wallet,
   Building2,
+  BarChart3,
   Loader2,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/auth-context";
 import {
@@ -27,6 +29,20 @@ import {
   markNotificationAsRead,
   type Notification,
 } from "@/lib/api/notifications";
+import { getFormations } from "@/lib/api/formations";
+import { getSessions } from "@/lib/api/sessions";
+import { getFormateurs } from "@/lib/api/formateurs";
+import { getEmployes } from "@/lib/api/employes";
+import { getParticipants } from "@/lib/api/users";
+import {
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { useQuery } from "@tanstack/react-query";
 
 const nav = [
   { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
@@ -39,8 +55,165 @@ const nav = [
   { to: "/admin/paiements", label: "Paiements", icon: Wallet },
   { to: "/admin/documents", label: "Documents", icon: FileText },
   { to: "/admin/evaluations", label: "Évaluations", icon: Star },
+  { to: "/admin/kpi", label: "KPI Formations", icon: BarChart3 },
   { to: "/admin/cabinets", label: "Cabinets", icon: Building2 },
 ];
+
+function GlobalSearch() {
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const shortcut = isMac ? "⌘K" : "Ctrl+K";
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((o) => !o);
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  const { data: formations } = useQuery({
+    queryKey: ["search-formations"],
+    queryFn: () => getFormations(undefined, true),
+  });
+  const { data: sessions } = useQuery({
+    queryKey: ["search-sessions"],
+    queryFn: () => getSessions(undefined, true),
+  });
+  const { data: formateurs } = useQuery({
+    queryKey: ["search-formateurs"],
+    queryFn: () => getFormateurs(undefined, true),
+  });
+  const { data: employes } = useQuery({
+    queryKey: ["search-employes"],
+    queryFn: getEmployes,
+  });
+  const { data: participants } = useQuery({
+    queryKey: ["search-participants"],
+    queryFn: getParticipants,
+  });
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex flex-1 items-center gap-2 rounded-lg bg-secondary px-3 py-2"
+      >
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <span className="w-full text-left text-sm text-muted-foreground">
+          Rechercher (formations, participants, sessions…)
+        </span>
+        <kbd className="hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground sm:inline-block">
+          {shortcut}
+        </kbd>
+      </button>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Rechercher dans toute la plateforme…" />
+        <CommandList>
+          <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
+          {formations && formations.length > 0 && (
+            <CommandGroup heading="Formations">
+              {formations.map((f) => (
+                <CommandItem
+                  key={f.id}
+                  value={`formation-${f.titre}`}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: "/admin/formations" });
+                  }}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span>{f.titre}</span>
+                  {f.cabinetId && (
+                    <span className="ml-auto text-[10px] text-muted-foreground">Cabinet</span>
+                  )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {sessions && sessions.length > 0 && (
+            <CommandGroup heading="Sessions">
+              {sessions.map((s) => (
+                <CommandItem
+                  key={s.id}
+                  value={`session-${s.formation?.titre || ""}-${s.lieu || ""}`}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: "/admin/sessions" });
+                  }}
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  <span>{s.formation?.titre || "Session"}</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {new Date(s.dateDebut).toLocaleDateString("fr-FR")}
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {formateurs && formateurs.length > 0 && (
+            <CommandGroup heading="Formateurs">
+              {formateurs.map((f) => (
+                <CommandItem
+                  key={f.id}
+                  value={`formateur-${f.prenom}-${f.nom}-${f.email}`}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: "/admin/formateurs" });
+                  }}
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  <span>{f.prenom + " " + f.nom}</span>
+                  <span className="text-xs text-muted-foreground ml-2">{f.email}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {employes && employes.length > 0 && (
+            <CommandGroup heading="Employés">
+              {employes.map((e) => (
+                <CommandItem
+                  key={e.id}
+                  value={`employe-${e.prenom}-${e.nom}-${e.email}`}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: "/admin/employes" });
+                  }}
+                >
+                  <IdCard className="h-4 w-4" />
+                  <span>{e.prenom + " " + e.nom}</span>
+                  <span className="text-xs text-muted-foreground ml-2">{e.email}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {participants && participants.length > 0 && (
+            <CommandGroup heading="Participants">
+              {participants.map((p) => (
+                <CommandItem
+                  key={p.id}
+                  value={`participant-${p.prenom}-${p.nom}-${p.email}`}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: "/admin/participants" });
+                  }}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>{p.prenom + " " + p.nom}</span>
+                  <span className="text-xs text-muted-foreground ml-2">{p.email}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </CommandList>
+      </CommandDialog>
+    </>
+  );
+}
 
 export function AdminShell({
   title,
@@ -131,16 +304,7 @@ export function AdminShell({
 
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-6 backdrop-blur-md">
-            <div className="flex flex-1 items-center gap-2 rounded-lg bg-secondary px-3 py-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                placeholder="Rechercher (formations, participants, sessions…)"
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
-              <kbd className="hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground sm:inline-block">
-                ⌘K
-              </kbd>
-            </div>
+            <GlobalSearch />
             <DarkModeToggle />
             <NotificationBell />
           </header>

@@ -484,7 +484,7 @@ function AdminFormateurs() {
                   </span>
                   {t.clonedFromCabinetId && (
                     <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-                      Issu du cabinet
+                      Issu de {t.clonedFromCabinetName || "cabinet"}
                     </span>
                   )}
                   <a
@@ -522,7 +522,7 @@ function AdminFormateurs() {
                 </p>
                 {detailFormateur?.clonedFromCabinetId && (
                   <span className="mt-1 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-                    Issu du cabinet
+                    Issu de {detailFormateur?.clonedFromCabinetName || "cabinet"}
                   </span>
                 )}
               </div>

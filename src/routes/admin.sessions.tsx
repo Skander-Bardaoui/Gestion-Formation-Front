@@ -544,7 +544,7 @@ function AdminSessions() {
                       {s.formation?.titre || "Formation"}
                       {s.clonedFromCabinetId && (
                         <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
-                          Cabinet
+                          {s.clonedFromCabinetName || "Cabinet"}
                         </span>
                       )}
                     </h3>

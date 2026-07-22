@@ -120,14 +120,22 @@ function AdminDocuments() {
   });
 
   const genMutation = useMutation({
-    mutationFn: async () => {
-      if (!genType || !selectedSession) throw new Error("Session requise");
-      if (genType === "convention" && !selectedParticipant) throw new Error("Participant requis");
-      if (genType === "contrat" && !selectedFormateur) throw new Error("Formateur requis");
-      if (genType === "convention") return generateConvention(selectedSession, selectedParticipant);
-      if (genType === "contrat")
-        return generateContratFormateur(selectedSession, selectedFormateur);
-      if (genType === "emargement") return generateFeuilleEmargement(selectedSession);
+    mutationFn: async ({
+      gType,
+      sId,
+      pId,
+      fId,
+    }: {
+      gType: "convention" | "contrat" | "emargement";
+      sId: string;
+      pId?: string;
+      fId?: string;
+    }) => {
+      if (gType === "convention" && !pId) throw new Error("Participant requis");
+      if (gType === "contrat" && !fId) throw new Error("Formateur requis");
+      if (gType === "convention") return generateConvention(sId, pId!);
+      if (gType === "contrat") return generateContratFormateur(sId, fId!);
+      if (gType === "emargement") return generateFeuilleEmargement(sId);
       throw new Error("Type invalide");
     },
     onSuccess: () => {
@@ -140,7 +148,6 @@ function AdminDocuments() {
   });
 
   const resetGenForm = () => {
-    setGenType(null);
     setSelectedSession("");
     setSelectedParticipant("");
     setSelectedFormateur("");
@@ -164,6 +171,7 @@ function AdminDocuments() {
             onOpenChange={(o) => {
               if (!o) {
                 setGenDialog(null);
+                setGenType(null);
                 resetGenForm();
               }
             }}
@@ -254,7 +262,14 @@ function AdminDocuments() {
                 )}
 
                 <Button
-                  onClick={() => genMutation.mutate()}
+                  onClick={() =>
+                    genMutation.mutate({
+                      gType: genType!,
+                      sId: selectedSession,
+                      pId: genType === "convention" ? selectedParticipant : undefined,
+                      fId: genType === "contrat" ? selectedFormateur : undefined,
+                    })
+                  }
                   disabled={
                     genMutation.isPending ||
                     !selectedSession ||

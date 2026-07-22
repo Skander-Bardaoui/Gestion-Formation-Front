@@ -54,10 +54,20 @@ function AdminParticipants() {
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState("");
 
   const { data: participants, isLoading } = useQuery({
     queryKey: ["participants"],
     queryFn: getParticipants,
+  });
+  const filtered = (participants || []).filter((p) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      p.nom.toLowerCase().includes(q) ||
+      p.prenom.toLowerCase().includes(q) ||
+      p.email.toLowerCase().includes(q)
+    );
   });
 
   const saveMutation = useMutation({
@@ -240,89 +250,102 @@ function AdminParticipants() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-secondary text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Nom</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Téléphone</th>
-                <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {participants?.length === 0 && (
+        <div>
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 rounded-md border border-border bg-background px-3 text-xs outline-none focus:border-primary"
+            />
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead className="bg-secondary text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
-                    Aucun participant pour le moment
-                  </td>
+                  <th className="px-4 py-3">Nom</th>
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Téléphone</th>
+                  <th className="px-4 py-3">Statut</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              )}
-              {participants?.map((p: Participant) => (
-                <tr key={p.id} className="border-t border-border hover:bg-secondary/40">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary overflow-hidden">
-                        {p.avatarUrl ? (
-                          <img
-                            src={`http://localhost:3001${p.avatarUrl}`}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <>
-                            {p.prenom?.[0]}
-                            {p.nom?.[0]}
-                          </>
-                        )}
+              </thead>
+              <tbody>
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                      {participants?.length === 0
+                        ? "Aucun participant pour le moment"
+                        : "Aucun résultat pour cette recherche"}
+                    </td>
+                  </tr>
+                )}
+                {filtered.map((p: Participant) => (
+                  <tr key={p.id} className="border-t border-border hover:bg-secondary/40">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary overflow-hidden">
+                          {p.avatarUrl ? (
+                            <img
+                              src={`http://localhost:3001${p.avatarUrl}`}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <>
+                              {p.prenom?.[0]}
+                              {p.nom?.[0]}
+                            </>
+                          )}
+                        </div>
+                        <p className="font-medium">
+                          {p.prenom} {p.nom}
+                        </p>
                       </div>
-                      <p className="font-medium">
-                        {p.prenom} {p.nom}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.email}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.telephone || "—"}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${p.isActive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}
-                    >
-                      {p.isActive ? "Actif" : "Inactif"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => toggleMutation.mutate({ id: p.id, isActive: !p.isActive })}
-                        disabled={toggleMutation.isPending}
-                        className={`rounded p-1.5 ${p.isActive ? "text-green-600 hover:bg-green-100" : "text-muted-foreground hover:bg-secondary"}`}
-                        title={p.isActive ? "Désactiver" : "Activer"}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.email}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.telephone || "—"}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${p.isActive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}
                       >
-                        {p.isActive ? (
-                          <ToggleRight className="h-4 w-4" />
-                        ) : (
-                          <ToggleLeft className="h-4 w-4" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => openEdit(p)}
-                        className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(p.id)}
-                        className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {p.isActive ? "Actif" : "Inactif"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => toggleMutation.mutate({ id: p.id, isActive: !p.isActive })}
+                          disabled={toggleMutation.isPending}
+                          className={`rounded p-1.5 ${p.isActive ? "text-green-600 hover:bg-green-100" : "text-muted-foreground hover:bg-secondary"}`}
+                          title={p.isActive ? "Désactiver" : "Activer"}
+                        >
+                          {p.isActive ? (
+                            <ToggleRight className="h-4 w-4" />
+                          ) : (
+                            <ToggleLeft className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => openEdit(p)}
+                          className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(p.id)}
+                          className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

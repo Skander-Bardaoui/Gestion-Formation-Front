@@ -18,7 +18,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { getSession } from "@/lib/api/sessions";
-import { createEvaluation } from "@/lib/api/evaluations";
+import { createEvaluation, getEvaluations } from "@/lib/api/evaluations";
 import { useState } from "react";
 
 export const Route = createFileRoute("/evaluation/$sessionId")({
@@ -110,6 +110,13 @@ function EvaluerPage() {
   const { data: session, isLoading } = useQuery({
     queryKey: ["session", sessionId],
     queryFn: () => getSession(sessionId),
+  });
+
+  const { data: existingEval } = useQuery({
+    queryKey: ["evaluations", "check", sessionId, user?.id],
+    queryFn: () => getEvaluations({ sessionId, participantId: user?.id }),
+    enabled: !!user?.id,
+    select: (data) => data.length > 0,
   });
 
   // Section 2: Avis sur la formation (1-4)
@@ -450,10 +457,12 @@ function EvaluerPage() {
 
             <Button
               onClick={() => mutation.mutate()}
-              disabled={!allSectionsFilled || mutation.isPending}
+              disabled={!allSectionsFilled || mutation.isPending || existingEval}
               className="h-12 w-full text-base"
             >
-              {mutation.isPending ? (
+              {existingEval ? (
+                "Déjà évalué"
+              ) : mutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Envoi en cours…

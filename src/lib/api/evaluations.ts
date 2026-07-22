@@ -59,10 +59,16 @@ export type CreateEvaluationDto = {
 export async function getEvaluations(filters?: {
   formationId?: string;
   formateurId?: string;
+  cabinetId?: string;
+  sessionId?: string;
+  participantId?: string;
 }): Promise<Evaluation[]> {
   const params = new URLSearchParams();
   if (filters?.formationId) params.set("formationId", filters.formationId);
   if (filters?.formateurId) params.set("formateurId", filters.formateurId);
+  if (filters?.cabinetId) params.set("cabinetId", filters.cabinetId);
+  if (filters?.sessionId) params.set("sessionId", filters.sessionId);
+  if (filters?.participantId) params.set("participantId", filters.participantId);
   const qs = params.toString();
   return api.get<Evaluation[]>(`/evaluations${qs ? `?${qs}` : ""}`);
 }

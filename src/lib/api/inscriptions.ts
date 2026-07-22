@@ -35,6 +35,10 @@ export async function getPendingInscriptions(): Promise<Inscription[]> {
   return api.get<Inscription[]>("/inscriptions/pending");
 }
 
+export async function getConfirmedInscriptions(): Promise<Inscription[]> {
+  return api.get<Inscription[]>("/inscriptions/confirmed");
+}
+
 export async function getMyInscriptions(): Promise<Inscription[]> {
   return api.get<Inscription[]>("/inscriptions/mine");
 }

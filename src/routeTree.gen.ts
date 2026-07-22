@@ -34,6 +34,7 @@ import { Route as AdminSessionsRouteImport } from './routes/admin.sessions'
 import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 import { Route as AdminPaiementsRouteImport } from './routes/admin.paiements'
+import { Route as AdminKpiRouteImport } from './routes/admin.kpi'
 import { Route as AdminFormationsRouteImport } from './routes/admin.formations'
 import { Route as AdminFormateursRouteImport } from './routes/admin.formateurs'
 import { Route as AdminEvaluationsRouteImport } from './routes/admin.evaluations'
@@ -167,6 +168,11 @@ const AdminPaiementsRoute = AdminPaiementsRouteImport.update({
   path: '/paiements',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKpiRoute = AdminKpiRouteImport.update({
+  id: '/kpi',
+  path: '/kpi',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFormationsRoute = AdminFormationsRouteImport.update({
   id: '/formations',
   path: '/formations',
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/kpi': typeof AdminKpiRoute
   '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/kpi': typeof AdminKpiRoute
   '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/admin/evaluations': typeof AdminEvaluationsRoute
   '/admin/formateurs': typeof AdminFormateursRoute
   '/admin/formations': typeof AdminFormationsRoute
+  '/admin/kpi': typeof AdminKpiRoute
   '/admin/paiements': typeof AdminPaiementsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/kpi'
     | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/kpi'
     | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin/evaluations'
     | '/admin/formateurs'
     | '/admin/formations'
+    | '/admin/kpi'
     | '/admin/paiements'
     | '/admin/parametres'
     | '/admin/participants'
@@ -603,6 +615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaiementsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/kpi': {
+      id: '/admin/kpi'
+      path: '/kpi'
+      fullPath: '/admin/kpi'
+      preLoaderRoute: typeof AdminKpiRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/formations': {
       id: '/admin/formations'
       path: '/formations'
@@ -663,6 +682,7 @@ interface AdminRouteChildren {
   AdminEvaluationsRoute: typeof AdminEvaluationsRoute
   AdminFormateursRoute: typeof AdminFormateursRoute
   AdminFormationsRoute: typeof AdminFormationsRoute
+  AdminKpiRoute: typeof AdminKpiRoute
   AdminPaiementsRoute: typeof AdminPaiementsRoute
   AdminParametresRoute: typeof AdminParametresRoute
   AdminParticipantsRoute: typeof AdminParticipantsRoute
@@ -678,6 +698,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEvaluationsRoute: AdminEvaluationsRoute,
   AdminFormateursRoute: AdminFormateursRoute,
   AdminFormationsRoute: AdminFormationsRoute,
+  AdminKpiRoute: AdminKpiRoute,
   AdminPaiementsRoute: AdminPaiementsRoute,
   AdminParametresRoute: AdminParametresRoute,
   AdminParticipantsRoute: AdminParticipantsRoute,

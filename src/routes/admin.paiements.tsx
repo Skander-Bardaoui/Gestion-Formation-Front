@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   getPendingInscriptions,
+  getConfirmedInscriptions,
   confirmPayment,
   rejectInscription,
   type Inscription,
@@ -43,11 +44,17 @@ function AdminPaiementsPage() {
     queryFn: getPendingInscriptions,
   });
 
+  const { data: confirmed } = useQuery({
+    queryKey: ["confirmed-inscriptions"],
+    queryFn: getConfirmedInscriptions,
+  });
+
   const confirmMutation = useMutation({
     mutationFn: (id: string) => confirmPayment(id),
     onSuccess: () => {
       toast.success("Paiement confirmé ! L'inscription a été validée.");
       queryClient.invalidateQueries({ queryKey: ["pending-inscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["confirmed-inscriptions"] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Erreur lors de la confirmation");
@@ -60,6 +67,7 @@ function AdminPaiementsPage() {
       toast.success("Inscription refusée.");
       setRefuseDialogId(null);
       queryClient.invalidateQueries({ queryKey: ["pending-inscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["confirmed-inscriptions"] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Erreur lors du refus");
@@ -155,6 +163,46 @@ function AdminPaiementsPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Toutes les inscriptions ont été traitées.
           </p>
+        </div>
+      )}
+
+      {confirmed && confirmed.length > 0 && (
+        <div className="mt-10">
+          <h2 className="font-display text-xl mb-4">Historique des paiements</h2>
+          <div className="space-y-3">
+            {confirmed.map((ins: Inscription) => {
+              const s = ins.session;
+              const u = ins.user;
+              const d = new Date(s.dateDebut);
+              return (
+                <div key={ins.id} className="rounded-xl border border-border bg-card p-4 opacity-80">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm">{s.formation?.titre || "Formation"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {u.prenom} {u.nom} · {u.email} · {ins.montant} DT
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {d.toLocaleDateString("fr-FR")}
+                      </span>
+                      {ins.datePaiement && (
+                        <span className="flex items-center gap-1">
+                          <CheckCircle className="h-3.5 w-3.5" />
+                          Payé le {new Date(ins.datePaiement).toLocaleDateString("fr-FR")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

@@ -20,15 +20,19 @@ export type Formateur = {
   avatarUrl?: string;
   clonedFromId?: string;
   clonedFromCabinetId?: string;
+  clonedFromCabinetName?: string;
   sessionsAsFormateur: any[];
   evaluationsRecues: any[];
   createdAt: string;
   updatedAt: string;
 };
 
-export async function getFormateurs(cabinetId?: string): Promise<Formateur[]> {
-  const params = cabinetId ? `?cabinetId=${cabinetId}` : "";
-  return api.get<Formateur[]>(`/formateurs${params}`);
+export async function getFormateurs(cabinetId?: string, all?: boolean): Promise<Formateur[]> {
+  const params = new URLSearchParams();
+  if (cabinetId) params.set("cabinetId", cabinetId);
+  if (all) params.set("all", "true");
+  const qs = params.toString();
+  return api.get<Formateur[]>(`/formateurs${qs ? `?${qs}` : ""}`);
 }
 
 export async function getFormateur(id: string): Promise<Formateur> {
